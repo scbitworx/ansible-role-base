@@ -24,10 +24,18 @@
     mode: "0644"
   become: true
 
+- name: Create readline config directory
+  ansible.builtin.file:
+    path: "{{ __base_user_home }}/.config/readline"
+    state: directory
+    owner: "{{ base_user }}"
+    mode: "0755"
+  become: true
+
 - name: Deploy inputrc
   ansible.builtin.template:
     src: inputrc.j2
-    dest: "{{ __base_user_home }}/.config/bash/inputrc"
+    dest: "{{ __base_user_home }}/.config/readline/inputrc"
     owner: "{{ base_user }}"
     mode: "0644"
   become: true
@@ -52,7 +60,7 @@
 
 - name: Symlink inputrc to home directory
   ansible.builtin.file:
-    src: ".config/bash/inputrc"
+    src: ".config/readline/inputrc"
     dest: "{{ __base_user_home }}/.inputrc"
     state: link
     force: true

@@ -259,7 +259,7 @@
 
     - name: Check inputrc exists
       ansible.builtin.stat:
-        path: "{{ test_user_home }}/.config/bash/inputrc"
+        path: "{{ test_user_home }}/.config/readline/inputrc"
       register: inputrc_file
 
     - name: Assert inputrc exists
@@ -267,7 +267,7 @@
         that:
           - inputrc_file.stat.exists
           - inputrc_file.stat.isreg
-        fail_msg: "~/.config/bash/inputrc does not exist"
+        fail_msg: "~/.config/readline/inputrc does not exist"
 
     # --- Symlink verification ---
     - name: Check .bashrc symlink
@@ -299,9 +299,9 @@
         path: "{{ test_user_home }}/.inputrc"
       register: inputrc_link
 
-    - name: Assert .inputrc is a symlink to config/bash/inputrc
+    - name: Assert .inputrc is a symlink to config/readline/inputrc
       ansible.builtin.assert:
         that:
           - inputrc_link.stat.islnk
-          - inputrc_link.stat.lnk_target == ".config/bash/inputrc"
-        fail_msg: "~/.inputrc is not a symlink to .config/bash/inputrc"
+          - inputrc_link.stat.lnk_target == ".config/readline/inputrc"
+        fail_msg: "~/.inputrc is not a symlink to .config/readline/inputrc"
