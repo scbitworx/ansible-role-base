@@ -4,7 +4,10 @@
   gather_facts: false
   tasks:
     - name: Install Python and sudo (Arch)
-      ansible.builtin.raw: pacman -Syu --noconfirm python sudo
+      ansible.builtin.raw: pacman -Syu --noconfirm python sudo openssh
+
+    - name: Generate SSH host keys (Arch)
+      ansible.builtin.raw: ssh-keygen -A
 
 - name: Prepare Debian/Ubuntu containers
   hosts: debian:ubuntu
@@ -19,3 +22,18 @@
       ansible.builtin.apt:
         name: locales
         state: present
+
+    - name: Create privilege separation directory
+      ansible.builtin.file:
+        path: /run/sshd
+        state: directory
+        mode: "0755"
+
+- name: Prepare all containers for SSH validation
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure SSH host keys exist
+      ansible.builtin.command: ssh-keygen -A
+      args:
+        creates: /etc/ssh/ssh_host_rsa_key
