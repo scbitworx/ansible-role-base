@@ -4,11 +4,11 @@
   become: true
   vars:
     test_users:
-      - name: bwright
+      - name: testuser1
         expected_keys:
           - test-key-1
           - test-key-2
-      - name: testuser
+      - name: testuser2
         expected_keys:
           - test-key-3
   tasks:

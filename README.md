@@ -42,7 +42,7 @@ The base role enforces a security-first configuration on all hosts:
 
 | Variable | Default | Description |
 |---|---|---|
-| `base_users` | `[{name: bwright}]` | List of user accounts to create |
+| `base_users` | `[]` | List of user accounts to create |
 | `base_extra_packages` | `[]` | Additional packages beyond the base set |
 | `base_timezone` | `America/New_York` | System timezone |
 | `base_locale` | `en_US.UTF-8` | System locale |
