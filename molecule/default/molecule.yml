@@ -42,3 +42,20 @@ provisioner:
   name: ansible
 verifier:
   name: ansible
+
+# Explicit test sequence to suppress warnings for unused steps.
+# Uncomment dependency/cleanup/side_effect when the role needs them.
+scenario:
+  test_sequence:
+    # - dependency  # enable when requirements.yml or collections.yml is added
+    # - cleanup     # enable when a cleanup.yml playbook is added
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    # - side_effect  # enable when a side_effect.yml playbook is added
+    - verify
+    # - cleanup
+    - destroy
