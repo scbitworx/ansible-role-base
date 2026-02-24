@@ -199,6 +199,18 @@
           - confd_dir.stat.isdir
         fail_msg: "~/.config/bash/conf.d/ directory does not exist"
 
+    - name: Check readline config directory exists
+      ansible.builtin.stat:
+        path: "{{ test_user_home }}/.config/readline"
+      register: readline_dir
+
+    - name: Assert readline config directory exists
+      ansible.builtin.assert:
+        that:
+          - readline_dir.stat.exists
+          - readline_dir.stat.isdir
+        fail_msg: "~/.config/readline/ directory does not exist"
+
     - name: Check bashrc exists
       ansible.builtin.stat:
         path: "{{ test_user_home }}/.config/bash/bashrc"

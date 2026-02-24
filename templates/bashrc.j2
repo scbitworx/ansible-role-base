@@ -5,8 +5,8 @@
 [[ $- != *i* ]] && return
 
 # Core shell settings
-export EDITOR={{ base_editor }}
-export VISUAL={{ base_editor }}
+export EDITOR="{{ base_editor }}"
+export VISUAL="{{ base_editor }}"
 export HISTSIZE={{ base_histsize }}
 export HISTFILESIZE={{ base_histsize }}
 export HISTCONTROL=ignoreboth:erasedups
