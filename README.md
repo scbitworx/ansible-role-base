@@ -32,8 +32,11 @@ The base role enforces a security-first configuration on all hosts:
 - **Key-only authentication**: PubkeyAuthentication enabled, passwords and
   keyboard-interactive auth disabled
 - **Authorized keys deployment**: Public keys are deployed per user to
-  `~/.ssh/authorized_keys`. Actual key values belong in the controller
-  inventory (`group_vars/all.yml`), not in role defaults
+  `~/.ssh/authorized_keys` with `exclusive: true`. This means the inventory
+  is the single source of truth — any keys not listed in `authorized_keys`
+  for that user will be removed on the next run. To add a new key, add it
+  to the user's entry in inventory (`group_vars/all.yml` or `host_vars/`),
+  not via `ssh-copy-id`
 - **Sudoers management**: A validated sudoers drop-in is deployed per user.
   The admin group (`wheel` on Arch, `sudo` on Debian/Ubuntu) is automatically
   assigned based on the distribution
