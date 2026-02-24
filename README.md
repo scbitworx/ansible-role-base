@@ -71,14 +71,29 @@ The role deploys an XDG-compliant bash configuration:
 ~/.config/bash/
   bashrc       # conf.d/ sourcing loop, XDG exports, EDITOR, HISTSIZE
   profile      # sources bashrc, adds ~/.local/bin to PATH
-  inputrc      # readline settings
   conf.d/      # drop-in directory for other roles
+
+~/.config/readline/
+  inputrc      # readline settings
 ```
 
 Symlinks are created for compatibility:
 - `~/.bashrc` -> `.config/bash/bashrc`
 - `~/.profile` -> `.config/bash/profile`
-- `~/.inputrc` -> `.config/bash/inputrc`
+- `~/.inputrc` -> `.config/readline/inputrc`
+
+## Collection Dependencies
+
+This role requires the following Ansible collections:
+
+- `ansible.posix` — `authorized_key` module
+- `community.general` — `timezone` and `locale_gen` modules
+
+Install them with:
+
+```bash
+ansible-galaxy collection install -r meta/requirements.yml
+```
 
 ## Testing
 

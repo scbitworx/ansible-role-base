@@ -5,6 +5,7 @@
     state: directory
     recurse: true
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
     mode: "0755"
   become: true
 
@@ -13,6 +14,7 @@
     src: bashrc.j2
     dest: "{{ __base_user_home }}/.config/bash/bashrc"
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
     mode: "0644"
   become: true
 
@@ -21,6 +23,7 @@
     src: profile.j2
     dest: "{{ __base_user_home }}/.config/bash/profile"
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
     mode: "0644"
   become: true
 
@@ -29,6 +32,7 @@
     path: "{{ __base_user_home }}/.config/readline"
     state: directory
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
     mode: "0755"
   become: true
 
@@ -37,6 +41,7 @@
     src: inputrc.j2
     dest: "{{ __base_user_home }}/.config/readline/inputrc"
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
     mode: "0644"
   become: true
 
@@ -47,6 +52,7 @@
     state: link
     force: true
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
   become: true
 
 - name: Symlink profile to home directory
@@ -56,6 +62,7 @@
     state: link
     force: true
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
   become: true
 
 - name: Symlink inputrc to home directory
@@ -65,4 +72,5 @@
     state: link
     force: true
     owner: "{{ base_user }}"
+    group: "{{ base_user }}"
   become: true
