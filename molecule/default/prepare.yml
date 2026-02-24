@@ -3,7 +3,7 @@
   hosts: archlinux
   gather_facts: false
   tasks:
-    - name: Install Python and sudo (Arch)
+    - name: Install Python, sudo, and openssh (Arch)
       ansible.builtin.raw: pacman -Syu --noconfirm python sudo openssh
 
     - name: Generate SSH host keys (Arch)
@@ -18,9 +18,11 @@
         update_cache: true
         cache_valid_time: 600
 
-    - name: Install locales package
+    - name: Install prerequisite packages
       ansible.builtin.apt:
-        name: locales
+        name:
+          - locales
+          - openssh-server
         state: present
 
     - name: Create privilege separation directory
@@ -28,12 +30,3 @@
         path: /run/sshd
         state: directory
         mode: "0755"
-
-- name: Prepare all containers for SSH validation
-  hosts: all
-  become: true
-  tasks:
-    - name: Ensure SSH host keys exist
-      ansible.builtin.command: ssh-keygen -A
-      args:
-        creates: /etc/ssh/ssh_host_rsa_key
