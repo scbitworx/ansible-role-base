@@ -12,8 +12,15 @@ HostKey /etc/ssh/ssh_host_ed25519_key
 PermitRootLogin {{ base_sshd_permit_root_login }}
 PubkeyAuthentication {{ base_sshd_pubkey_authentication }}
 PasswordAuthentication {{ base_sshd_password_authentication }}
+PermitEmptyPasswords no
 KbdInteractiveAuthentication no
 UsePAM yes
+
+MaxAuthTries {{ base_sshd_max_auth_tries }}
+LoginGraceTime {{ base_sshd_login_grace_time }}
+ClientAliveInterval {{ base_sshd_client_alive_interval }}
+ClientAliveCountMax {{ base_sshd_client_alive_count_max }}
+MaxSessions {{ base_sshd_max_sessions }}
 
 X11Forwarding {{ base_sshd_x11_forwarding }}
 PrintMotd no

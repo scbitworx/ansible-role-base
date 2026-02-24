@@ -16,3 +16,5 @@ __base_packages:
 __base_sshd_service: sshd
 
 __base_sftp_server_path: /usr/lib/ssh/sftp-server
+
+__base_admin_group: wheel

@@ -9,6 +9,9 @@
     - name: Generate SSH host keys (Arch)
       ansible.builtin.raw: ssh-keygen -A
 
+    - name: Start sshd (Arch)
+      ansible.builtin.raw: systemctl start sshd
+
 - name: Prepare Debian/Ubuntu containers
   hosts: debian:ubuntu
   become: true
@@ -30,3 +33,8 @@
         path: /run/sshd
         state: directory
         mode: "0755"
+
+    - name: Start sshd (Debian/Ubuntu)
+      ansible.builtin.service:
+        name: ssh
+        state: started

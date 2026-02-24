@@ -49,6 +49,47 @@
           - user_check.rc == 0
         fail_msg: "Admin user bwright does not exist"
 
+    # --- Sudo group verification ---
+    - name: Get admin group name
+      ansible.builtin.set_fact:
+        expected_admin_group: "{{ 'wheel' if ansible_facts['os_family'] == 'Archlinux' else 'sudo' }}"
+
+    - name: Check user is in admin group
+      ansible.builtin.command: id -nG bwright
+      register: user_groups
+      changed_when: false
+
+    - name: Assert user is in admin group
+      ansible.builtin.assert:
+        that:
+          - expected_admin_group in user_groups.stdout.split()
+        fail_msg: "User bwright is not in {{ expected_admin_group }} group"
+
+    # --- Sudoers verification ---
+    - name: Check sudoers drop-in exists
+      ansible.builtin.stat:
+        path: /etc/sudoers.d/bwright
+      register: sudoers_file
+
+    - name: Assert sudoers drop-in exists with correct permissions
+      ansible.builtin.assert:
+        that:
+          - sudoers_file.stat.exists
+          - sudoers_file.stat.isreg
+          - sudoers_file.stat.mode == '0440'
+        fail_msg: "/etc/sudoers.d/bwright does not exist or has wrong permissions"
+
+    - name: Read sudoers drop-in content
+      ansible.builtin.slurp:
+        src: /etc/sudoers.d/bwright
+      register: sudoers_content
+
+    - name: Assert sudoers drop-in contains NOPASSWD
+      ansible.builtin.assert:
+        that:
+          - "'NOPASSWD' in sudoers_content.content | b64decode"
+        fail_msg: "sudoers drop-in does not contain NOPASSWD"
+
     # --- Timezone verification ---
     - name: Check timezone file exists
       ansible.builtin.stat:
@@ -67,12 +108,13 @@
         path: /etc/ssh/sshd_config
       register: sshd_conf
 
-    - name: Assert sshd_config exists
+    - name: Assert sshd_config exists with correct permissions
       ansible.builtin.assert:
         that:
           - sshd_conf.stat.exists
           - sshd_conf.stat.isreg
-        fail_msg: "/etc/ssh/sshd_config does not exist"
+          - sshd_conf.stat.mode == '0600'
+        fail_msg: "/etc/ssh/sshd_config does not exist or has wrong permissions"
 
     - name: Read sshd_config content
       ansible.builtin.slurp:
@@ -85,8 +127,40 @@
           - "'PermitRootLogin no' in sshd_conf_content.content | b64decode"
           - "'PasswordAuthentication no' in sshd_conf_content.content | b64decode"
           - "'PubkeyAuthentication yes' in sshd_conf_content.content | b64decode"
+          - "'PermitEmptyPasswords no' in sshd_conf_content.content | b64decode"
           - "'KbdInteractiveAuthentication no' in sshd_conf_content.content | b64decode"
+          - "'MaxAuthTries 3' in sshd_conf_content.content | b64decode"
+          - "'LoginGraceTime 30' in sshd_conf_content.content | b64decode"
+          - "'ClientAliveInterval 300' in sshd_conf_content.content | b64decode"
+          - "'ClientAliveCountMax 2' in sshd_conf_content.content | b64decode"
+          - "'MaxSessions 3' in sshd_conf_content.content | b64decode"
         fail_msg: "sshd_config does not contain expected hardened settings"
+
+    # --- Authorized keys verification ---
+    - name: Check authorized_keys file exists
+      ansible.builtin.stat:
+        path: /home/bwright/.ssh/authorized_keys
+      register: authkeys_file
+
+    - name: Assert authorized_keys file exists with correct permissions
+      ansible.builtin.assert:
+        that:
+          - authkeys_file.stat.exists
+          - authkeys_file.stat.isreg
+          - authkeys_file.stat.mode == '0600'
+        fail_msg: "~/.ssh/authorized_keys does not exist or has wrong permissions"
+
+    - name: Read authorized_keys content
+      ansible.builtin.slurp:
+        src: /home/bwright/.ssh/authorized_keys
+      register: authkeys_content
+
+    - name: Assert authorized_keys contains test keys
+      ansible.builtin.assert:
+        that:
+          - "'test-key-1' in authkeys_content.content | b64decode"
+          - "'test-key-2' in authkeys_content.content | b64decode"
+        fail_msg: "authorized_keys does not contain expected test keys"
 
     # --- Shell skeleton verification ---
     - name: Check bash config directory exists

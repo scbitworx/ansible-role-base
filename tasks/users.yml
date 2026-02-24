@@ -3,7 +3,18 @@
   ansible.builtin.user:
     name: "{{ base_user }}"
     shell: "{{ base_user_shell }}"
-    groups: "{{ base_user_groups }}"
+    groups: "{{ [__base_admin_group] + base_user_groups }}"
     append: true
     create_home: "{{ base_user_create_home }}"
+  become: true
+
+- name: Deploy sudoers drop-in for admin user
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/{{ base_user }}"
+    content: |
+      {{ base_user }} ALL=(ALL) {{ 'NOPASSWD: ' if base_sudo_passwordless else '' }}ALL
+    owner: root
+    group: root
+    mode: "0440"
+    validate: visudo -cf %s
   become: true

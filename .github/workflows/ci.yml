@@ -46,7 +46,7 @@ jobs:
         run: pip install ansible-core molecule molecule-plugins[docker]
 
       - name: Install Ansible collections
-        run: ansible-galaxy collection install community.general
+        run: ansible-galaxy collection install community.general ansible.posix
 
       - name: Run Molecule tests
         run: molecule test
