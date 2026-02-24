@@ -231,7 +231,7 @@
     - name: Assert bashrc contains conf.d sourcing loop
       ansible.builtin.assert:
         that:
-          - "'conf.d/*.sh' in bashrc_content.content | b64decode"
+          - "'conf.d/*.bash' in bashrc_content.content | b64decode"
         fail_msg: "bashrc does not contain conf.d sourcing loop"
 
     - name: Assert bashrc exports EDITOR and VISUAL

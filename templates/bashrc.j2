@@ -19,7 +19,7 @@ export XDG_CACHE_HOME="${HOME}/.cache"
 
 # Source drop-in fragments
 if [ -d ~/.config/bash/conf.d ]; then
-  for f in ~/.config/bash/conf.d/*.sh; do
+  for f in ~/.config/bash/conf.d/*.bash; do
     [ -r "$f" ] && . "$f"
   done
 fi
