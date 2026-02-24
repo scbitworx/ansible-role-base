@@ -68,18 +68,23 @@ The base role enforces a security-first configuration on all hosts:
 The role deploys an XDG-compliant bash configuration:
 
 ```
+~/.config/
+  profile      # login profile: sources bashrc, adds ~/.local/bin to PATH
+
 ~/.config/bash/
   bashrc       # conf.d/ sourcing loop, XDG exports, EDITOR, HISTSIZE
-  profile      # sources bashrc, adds ~/.local/bin to PATH
   conf.d/      # drop-in directory for other roles
 
 ~/.config/readline/
   inputrc      # readline settings
 ```
 
+The login profile lives at `~/.config/profile` (not under `bash/`) because it
+is sourced by display managers and POSIX shells — not just bash.
+
 Symlinks are created for compatibility:
 - `~/.bashrc` -> `.config/bash/bashrc`
-- `~/.profile` -> `.config/bash/profile`
+- `~/.profile` -> `.config/profile`
 - `~/.inputrc` -> `.config/readline/inputrc`
 
 ## Collection Dependencies

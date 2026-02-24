@@ -21,7 +21,7 @@
 - name: Deploy profile
   ansible.builtin.template:
     src: profile.j2
-    dest: "{{ __base_user_home }}/.config/bash/profile"
+    dest: "{{ __base_user_home }}/.config/profile"
     owner: "{{ base_user }}"
     group: "{{ base_user }}"
     mode: "0644"
@@ -57,7 +57,7 @@
 
 - name: Symlink profile to home directory
   ansible.builtin.file:
-    src: ".config/bash/profile"
+    src: ".config/profile"
     dest: "{{ __base_user_home }}/.profile"
     state: link
     force: true

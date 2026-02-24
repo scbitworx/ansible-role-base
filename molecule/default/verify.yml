@@ -259,7 +259,7 @@
 
     - name: Check profile exists
       ansible.builtin.stat:
-        path: "{{ test_user_home }}/.config/bash/profile"
+        path: "{{ test_user_home }}/.config/profile"
       register: profile_file
 
     - name: Assert profile exists
@@ -267,7 +267,7 @@
         that:
           - profile_file.stat.exists
           - profile_file.stat.isreg
-        fail_msg: "~/.config/bash/profile does not exist"
+        fail_msg: "~/.config/profile does not exist"
 
     - name: Check inputrc exists
       ansible.builtin.stat:
@@ -299,12 +299,12 @@
         path: "{{ test_user_home }}/.profile"
       register: profile_link
 
-    - name: Assert .profile is a symlink to config/bash/profile
+    - name: Assert .profile is a symlink to config/profile
       ansible.builtin.assert:
         that:
           - profile_link.stat.islnk
-          - profile_link.stat.lnk_target == ".config/bash/profile"
-        fail_msg: "~/.profile is not a symlink to .config/bash/profile"
+          - profile_link.stat.lnk_target == ".config/profile"
+        fail_msg: "~/.profile is not a symlink to .config/profile"
 
     - name: Check .inputrc symlink
       ansible.builtin.stat:
