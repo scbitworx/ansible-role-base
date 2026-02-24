@@ -2,7 +2,19 @@
 - name: Verify
   hosts: all
   become: true
+  vars:
+    test_user: bwright
   tasks:
+    # --- Look up user home directory ---
+    - name: Get user info from passwd
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ test_user }}"
+
+    - name: Set user home directory fact
+      ansible.builtin.set_fact:
+        test_user_home: "{{ ansible_facts.getent_passwd[test_user][4] }}"
+
     # --- Package verification ---
     - name: Check that git is installed
       ansible.builtin.stat:
@@ -39,7 +51,7 @@
 
     # --- User verification ---
     - name: Check admin user exists
-      ansible.builtin.command: getent passwd bwright
+      ansible.builtin.command: "getent passwd {{ test_user }}"
       register: user_check
       changed_when: false
 
@@ -47,7 +59,7 @@
       ansible.builtin.assert:
         that:
           - user_check.rc == 0
-        fail_msg: "Admin user bwright does not exist"
+        fail_msg: "Admin user {{ test_user }} does not exist"
 
     # --- Sudo group verification ---
     - name: Get admin group name
@@ -55,7 +67,7 @@
         expected_admin_group: "{{ 'wheel' if ansible_facts['os_family'] == 'Archlinux' else 'sudo' }}"
 
     - name: Check user is in admin group
-      ansible.builtin.command: id -nG bwright
+      ansible.builtin.command: "id -nG {{ test_user }}"
       register: user_groups
       changed_when: false
 
@@ -63,12 +75,12 @@
       ansible.builtin.assert:
         that:
           - expected_admin_group in user_groups.stdout.split()
-        fail_msg: "User bwright is not in {{ expected_admin_group }} group"
+        fail_msg: "User {{ test_user }} is not in {{ expected_admin_group }} group"
 
     # --- Sudoers verification ---
     - name: Check sudoers drop-in exists
       ansible.builtin.stat:
-        path: /etc/sudoers.d/bwright
+        path: "/etc/sudoers.d/{{ test_user }}"
       register: sudoers_file
 
     - name: Assert sudoers drop-in exists with correct permissions
@@ -77,11 +89,11 @@
           - sudoers_file.stat.exists
           - sudoers_file.stat.isreg
           - sudoers_file.stat.mode == '0440'
-        fail_msg: "/etc/sudoers.d/bwright does not exist or has wrong permissions"
+        fail_msg: "/etc/sudoers.d/{{ test_user }} does not exist or has wrong permissions"
 
     - name: Read sudoers drop-in content
       ansible.builtin.slurp:
-        src: /etc/sudoers.d/bwright
+        src: "/etc/sudoers.d/{{ test_user }}"
       register: sudoers_content
 
     - name: Assert sudoers drop-in contains NOPASSWD
@@ -139,7 +151,7 @@
     # --- Authorized keys verification ---
     - name: Check authorized_keys file exists
       ansible.builtin.stat:
-        path: /home/bwright/.ssh/authorized_keys
+        path: "{{ test_user_home }}/.ssh/authorized_keys"
       register: authkeys_file
 
     - name: Assert authorized_keys file exists with correct permissions
@@ -152,7 +164,7 @@
 
     - name: Read authorized_keys content
       ansible.builtin.slurp:
-        src: /home/bwright/.ssh/authorized_keys
+        src: "{{ test_user_home }}/.ssh/authorized_keys"
       register: authkeys_content
 
     - name: Assert authorized_keys contains test keys
@@ -165,7 +177,7 @@
     # --- Shell skeleton verification ---
     - name: Check bash config directory exists
       ansible.builtin.stat:
-        path: /home/bwright/.config/bash
+        path: "{{ test_user_home }}/.config/bash"
       register: bash_dir
 
     - name: Assert bash config directory exists
@@ -177,7 +189,7 @@
 
     - name: Check conf.d directory exists
       ansible.builtin.stat:
-        path: /home/bwright/.config/bash/conf.d
+        path: "{{ test_user_home }}/.config/bash/conf.d"
       register: confd_dir
 
     - name: Assert conf.d directory exists
@@ -189,7 +201,7 @@
 
     - name: Check bashrc exists
       ansible.builtin.stat:
-        path: /home/bwright/.config/bash/bashrc
+        path: "{{ test_user_home }}/.config/bash/bashrc"
       register: bashrc_file
 
     - name: Assert bashrc exists
@@ -201,7 +213,7 @@
 
     - name: Read bashrc content
       ansible.builtin.slurp:
-        src: /home/bwright/.config/bash/bashrc
+        src: "{{ test_user_home }}/.config/bash/bashrc"
       register: bashrc_content
 
     - name: Assert bashrc contains conf.d sourcing loop
@@ -212,7 +224,7 @@
 
     - name: Check profile exists
       ansible.builtin.stat:
-        path: /home/bwright/.config/bash/profile
+        path: "{{ test_user_home }}/.config/bash/profile"
       register: profile_file
 
     - name: Assert profile exists
@@ -224,7 +236,7 @@
 
     - name: Check inputrc exists
       ansible.builtin.stat:
-        path: /home/bwright/.config/bash/inputrc
+        path: "{{ test_user_home }}/.config/bash/inputrc"
       register: inputrc_file
 
     - name: Assert inputrc exists
@@ -237,7 +249,7 @@
     # --- Symlink verification ---
     - name: Check .bashrc symlink
       ansible.builtin.stat:
-        path: /home/bwright/.bashrc
+        path: "{{ test_user_home }}/.bashrc"
       register: bashrc_link
 
     - name: Assert .bashrc is a symlink to config/bash/bashrc
@@ -249,7 +261,7 @@
 
     - name: Check .profile symlink
       ansible.builtin.stat:
-        path: /home/bwright/.profile
+        path: "{{ test_user_home }}/.profile"
       register: profile_link
 
     - name: Assert .profile is a symlink to config/bash/profile
@@ -261,7 +273,7 @@
 
     - name: Check .inputrc symlink
       ansible.builtin.stat:
-        path: /home/bwright/.inputrc
+        path: "{{ test_user_home }}/.inputrc"
       register: inputrc_link
 
     - name: Assert .inputrc is a symlink to config/bash/inputrc
