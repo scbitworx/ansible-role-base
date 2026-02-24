@@ -11,8 +11,11 @@ base_extra_packages: []
 base_admin_users: []
 
 # Per-user defaults (override per entry):
-#   groups: []            shell: /bin/bash       create_home: true
-#   authorized_keys: []   sudo_passwordless: true
+#   groups: []
+#   shell: /bin/bash
+#   create_home: true
+#   authorized_keys: []
+#   sudo_passwordless: true
 
 # Timezone and locale
 base_timezone: "America/New_York"
