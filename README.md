@@ -42,7 +42,7 @@ The base role enforces a security-first configuration on all hosts:
 
 | Variable | Default | Description |
 |---|---|---|
-| `base_users` | `[]` | List of user accounts to create |
+| `base_admin_users` | `[]` | List of administrative user accounts to create |
 | `base_extra_packages` | `[]` | Additional packages beyond the base set |
 | `base_timezone` | `America/New_York` | System timezone |
 | `base_locale` | `en_US.UTF-8` | System locale |
@@ -61,7 +61,7 @@ The base role enforces a security-first configuration on all hosts:
 
 ### Per-User Properties
 
-Each entry in `base_users` supports:
+Each entry in `base_admin_users` supports:
 
 | Property | Default | Description |
 |---|---|---|

@@ -11,10 +11,10 @@
 
 - name: Include per-user tasks
   ansible.builtin.include_tasks: per_user.yml
-  loop: "{{ base_users }}"
+  loop: "{{ base_admin_users }}"
   loop_control:
-    loop_var: __base_user
-    label: "{{ __base_user.name }}"
+    loop_var: __base_admin_user
+    label: "{{ __base_admin_user.name }}"
 
 - name: Include timezone and locale tasks
   ansible.builtin.include_tasks: timezone_locale.yml

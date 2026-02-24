@@ -5,10 +5,10 @@
 # Additional packages beyond the base set
 base_extra_packages: []
 
-# User accounts to create and configure.
+# Administrative user accounts to create and configure.
 # Each entry supports: name (required), groups, shell, create_home,
 # authorized_keys, sudo_passwordless.
-base_users: []
+base_admin_users: []
 
 # Per-user defaults (override per entry):
 #   groups: []            shell: /bin/bash       create_home: true

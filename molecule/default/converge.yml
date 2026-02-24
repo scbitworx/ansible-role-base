@@ -3,7 +3,7 @@
   hosts: all
   become: true
   vars:
-    base_users:
+    base_admin_users:
       - name: testuser1
         authorized_keys:
           - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestKey1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA test-key-1"

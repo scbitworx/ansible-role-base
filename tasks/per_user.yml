@@ -1,128 +1,129 @@
 ---
-- name: Create user {{ __base_user.name }}
+- name: Create user {{ __base_admin_user.name }}
   ansible.builtin.user:
-    name: "{{ __base_user.name }}"
-    shell: "{{ __base_user.shell | default('/bin/bash') }}"
-    groups: "{{ [__base_admin_group] + (__base_user.groups | default([])) }}"
+    name: "{{ __base_admin_user.name }}"
+    shell: "{{ __base_admin_user.shell | default('/bin/bash') }}"
+    groups: "{{ [__base_admin_group] + (__base_admin_user.groups | default([])) }}"
     append: true
-    create_home: "{{ __base_user.create_home | default(true) }}"
+    create_home: "{{ __base_admin_user.create_home | default(true) }}"
   become: true
-  register: __base_user_result
+  register: __base_admin_user_result
 
-- name: Set home directory fact for {{ __base_user.name }}
+- name: Set home directory fact for {{ __base_admin_user.name }}
   ansible.builtin.set_fact:
-    __base_user_home: "{{ __base_user_result.home }}"
+    __base_admin_user_home: "{{ __base_admin_user_result.home }}"
 
-- name: Deploy sudoers drop-in for {{ __base_user.name }}
+- name: Deploy sudoers drop-in for {{ __base_admin_user.name }}
   ansible.builtin.copy:
-    dest: "/etc/sudoers.d/{{ __base_user.name }}"
-    content: |
-      {{ __base_user.name }} ALL=(ALL) {{ 'NOPASSWD: ' if (__base_user.sudo_passwordless | default(true)) else '' }}ALL
+    dest: "/etc/sudoers.d/{{ __base_admin_user.name }}"
+    content: >-
+      {{ __base_admin_user.name }} ALL=(ALL)
+      {{ 'NOPASSWD: ' if (__base_admin_user.sudo_passwordless | default(true)) else '' }}ALL
     owner: root
     group: root
     mode: "0440"
     validate: visudo -cf %s
   become: true
 
-- name: Deploy authorized keys for {{ __base_user.name }}
+- name: Deploy authorized keys for {{ __base_admin_user.name }}
   ansible.posix.authorized_key:
-    user: "{{ __base_user.name }}"
-    key: "{{ (__base_user.authorized_keys | default([])) | join('\n') }}"
+    user: "{{ __base_admin_user.name }}"
+    key: "{{ (__base_admin_user.authorized_keys | default([])) | join('\n') }}"
     state: present
     exclusive: true
   become: true
-  when: (__base_user.authorized_keys | default([])) | length > 0
+  when: (__base_admin_user.authorized_keys | default([])) | length > 0
 
-- name: Create XDG config directory for {{ __base_user.name }}
+- name: Create XDG config directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
-    path: "{{ __base_user_home }}/.config"
+    path: "{{ __base_admin_user_home }}/.config"
     state: directory
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0755"
   become: true
 
-- name: Create profile.d directory for {{ __base_user.name }}
+- name: Create profile.d directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
-    path: "{{ __base_user_home }}/.config/profile.d"
+    path: "{{ __base_admin_user_home }}/.config/profile.d"
     state: directory
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0755"
   become: true
 
-- name: Deploy profile for {{ __base_user.name }}
+- name: Deploy profile for {{ __base_admin_user.name }}
   ansible.builtin.template:
     src: profile.j2
-    dest: "{{ __base_user_home }}/.config/profile"
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    dest: "{{ __base_admin_user_home }}/.config/profile"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0644"
   become: true
 
-- name: Create bash config directories for {{ __base_user.name }}
+- name: Create bash config directories for {{ __base_admin_user.name }}
   ansible.builtin.file:
-    path: "{{ __base_user_home }}/.config/bash/conf.d"
+    path: "{{ __base_admin_user_home }}/.config/bash/conf.d"
     state: directory
     recurse: true
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0755"
   become: true
 
-- name: Deploy bashrc for {{ __base_user.name }}
+- name: Deploy bashrc for {{ __base_admin_user.name }}
   ansible.builtin.template:
     src: bashrc.j2
-    dest: "{{ __base_user_home }}/.config/bash/bashrc"
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    dest: "{{ __base_admin_user_home }}/.config/bash/bashrc"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0644"
   become: true
 
-- name: Create readline config directory for {{ __base_user.name }}
+- name: Create readline config directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
-    path: "{{ __base_user_home }}/.config/readline"
+    path: "{{ __base_admin_user_home }}/.config/readline"
     state: directory
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0755"
   become: true
 
-- name: Deploy inputrc for {{ __base_user.name }}
+- name: Deploy inputrc for {{ __base_admin_user.name }}
   ansible.builtin.template:
     src: inputrc.j2
-    dest: "{{ __base_user_home }}/.config/readline/inputrc"
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    dest: "{{ __base_admin_user_home }}/.config/readline/inputrc"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
     mode: "0644"
   become: true
 
-- name: Symlink profile to home directory for {{ __base_user.name }}
+- name: Symlink profile to home directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
     src: ".config/profile"
-    dest: "{{ __base_user_home }}/.profile"
+    dest: "{{ __base_admin_user_home }}/.profile"
     state: link
     force: true
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
   become: true
 
-- name: Symlink bashrc to home directory for {{ __base_user.name }}
+- name: Symlink bashrc to home directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
     src: ".config/bash/bashrc"
-    dest: "{{ __base_user_home }}/.bashrc"
+    dest: "{{ __base_admin_user_home }}/.bashrc"
     state: link
     force: true
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
   become: true
 
-- name: Symlink inputrc to home directory for {{ __base_user.name }}
+- name: Symlink inputrc to home directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
     src: ".config/readline/inputrc"
-    dest: "{{ __base_user_home }}/.inputrc"
+    dest: "{{ __base_admin_user_home }}/.inputrc"
     state: link
     force: true
-    owner: "{{ __base_user.name }}"
-    group: "{{ __base_user.name }}"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
   become: true

@@ -4,7 +4,7 @@ profile: production
 strict: true
 
 extra_vars:
-  base_users:
+  base_admin_users:
     - name: lint_mock_user
 
 mock_roles: []
