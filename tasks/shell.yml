@@ -37,6 +37,7 @@
     src: ".config/bash/bashrc"
     dest: "~{{ base_user }}/.bashrc"
     state: link
+    force: true
     owner: "{{ base_user }}"
   become: true
 
@@ -45,6 +46,7 @@
     src: ".config/bash/profile"
     dest: "~{{ base_user }}/.profile"
     state: link
+    force: true
     owner: "{{ base_user }}"
   become: true
 
@@ -53,5 +55,6 @@
     src: ".config/bash/inputrc"
     dest: "~{{ base_user }}/.inputrc"
     state: link
+    force: true
     owner: "{{ base_user }}"
   become: true
