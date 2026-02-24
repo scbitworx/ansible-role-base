@@ -1,0 +1,25 @@
+# {{ ansible_managed }}
+# ~/.config/bash/bashrc — managed by ansible-role-base
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# Core shell settings
+export EDITOR={{ base_editor }}
+export VISUAL={{ base_editor }}
+export HISTSIZE={{ base_histsize }}
+export HISTFILESIZE={{ base_histsize }}
+export HISTCONTROL=ignoreboth:erasedups
+
+# XDG base directories
+export XDG_CONFIG_HOME="${HOME}/.config"
+export XDG_DATA_HOME="${HOME}/.local/share"
+export XDG_STATE_HOME="${HOME}/.local/state"
+export XDG_CACHE_HOME="${HOME}/.cache"
+
+# Source drop-in fragments
+if [ -d ~/.config/bash/conf.d ]; then
+  for f in ~/.config/bash/conf.d/*.sh; do
+    [ -r "$f" ] && . "$f"
+  done
+fi

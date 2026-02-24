@@ -1,0 +1,7 @@
+---
+- name: Base | restart sshd
+  ansible.builtin.service:
+    name: "{{ __base_sshd_service }}"
+    state: restarted
+  become: true
+  failed_when: false

@@ -1,0 +1,57 @@
+---
+- name: Create bash config directories
+  ansible.builtin.file:
+    path: "~{{ base_user }}/.config/bash/conf.d"
+    state: directory
+    recurse: true
+    owner: "{{ base_user }}"
+    mode: "0755"
+  become: true
+
+- name: Deploy bashrc
+  ansible.builtin.template:
+    src: bashrc.j2
+    dest: "~{{ base_user }}/.config/bash/bashrc"
+    owner: "{{ base_user }}"
+    mode: "0644"
+  become: true
+
+- name: Deploy profile
+  ansible.builtin.template:
+    src: profile.j2
+    dest: "~{{ base_user }}/.config/bash/profile"
+    owner: "{{ base_user }}"
+    mode: "0644"
+  become: true
+
+- name: Deploy inputrc
+  ansible.builtin.template:
+    src: inputrc.j2
+    dest: "~{{ base_user }}/.config/bash/inputrc"
+    owner: "{{ base_user }}"
+    mode: "0644"
+  become: true
+
+- name: Symlink bashrc to home directory
+  ansible.builtin.file:
+    src: ".config/bash/bashrc"
+    dest: "~{{ base_user }}/.bashrc"
+    state: link
+    owner: "{{ base_user }}"
+  become: true
+
+- name: Symlink profile to home directory
+  ansible.builtin.file:
+    src: ".config/bash/profile"
+    dest: "~{{ base_user }}/.profile"
+    state: link
+    owner: "{{ base_user }}"
+  become: true
+
+- name: Symlink inputrc to home directory
+  ansible.builtin.file:
+    src: ".config/bash/inputrc"
+    dest: "~{{ base_user }}/.inputrc"
+    state: link
+    owner: "{{ base_user }}"
+  become: true

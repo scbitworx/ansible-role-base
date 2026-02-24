@@ -1,0 +1,27 @@
+---
+# Public variables for the base role.
+# Override these in group_vars or host_vars as needed.
+
+# Additional packages beyond the base set
+base_extra_packages: []
+
+# Primary admin user
+base_user: "bwright"
+base_user_groups: []
+base_user_shell: "/bin/bash"
+base_user_create_home: true
+
+# Timezone and locale
+base_timezone: "America/New_York"
+base_locale: "en_US.UTF-8"
+
+# SSH configuration
+base_sshd_port: 22
+base_sshd_permit_root_login: "no"
+base_sshd_password_authentication: "no"
+base_sshd_pubkey_authentication: "yes"
+base_sshd_x11_forwarding: "no"
+
+# Shell settings
+base_editor: "vim"
+base_histsize: 10000

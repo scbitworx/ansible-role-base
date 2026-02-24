@@ -1,0 +1,9 @@
+---
+- name: Create admin user
+  ansible.builtin.user:
+    name: "{{ base_user }}"
+    shell: "{{ base_user_shell }}"
+    groups: "{{ base_user_groups }}"
+    append: true
+    create_home: "{{ base_user_create_home }}"
+  become: true

@@ -1,0 +1,22 @@
+---
+- name: Load distro-specific variables
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_facts['distribution'] }}.yml"
+    - "{{ ansible_facts['os_family'] }}.yml"
+    - main.yml
+
+- name: Include package tasks
+  ansible.builtin.include_tasks: packages.yml
+
+- name: Include user management tasks
+  ansible.builtin.include_tasks: users.yml
+
+- name: Include timezone and locale tasks
+  ansible.builtin.include_tasks: timezone_locale.yml
+
+- name: Include SSH configuration tasks
+  ansible.builtin.include_tasks: ssh.yml
+
+- name: Include shell skeleton tasks
+  ansible.builtin.include_tasks: shell.yml

@@ -1,0 +1,18 @@
+---
+__base_packages:
+  - build-essential
+  - git
+  - vim
+  - curl
+  - wget
+  - rsync
+  - htop
+  - tree
+  - unzip
+  - man-db
+  - openssh-server
+  - bash-completion
+
+__base_sshd_service: ssh
+
+__base_sftp_server_path: /usr/lib/openssh/sftp-server

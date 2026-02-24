@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+# ~/.config/bash/profile — managed by ansible-role-base
+
+# Add ~/.local/bin to PATH
+if [ -d "${HOME}/.local/bin" ]; then
+  PATH="${HOME}/.local/bin:${PATH}"
+fi
+
+# Source bashrc for interactive login shells
+if [ -n "$BASH_VERSION" ] && [ -f "${HOME}/.config/bash/bashrc" ]; then
+  . "${HOME}/.config/bash/bashrc"
+fi

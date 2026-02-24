@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: base
+  namespace: scbitworx
+  author: bwright
+  description: >-
+    Base role applied to all hosts. Installs essential packages, creates the
+    admin user, configures timezone and locale, deploys hardened SSH config,
+    and sets up the XDG shell skeleton with conf.d sourcing.
+  license: MIT
+  min_ansible_version: "2.15"
+  platforms:
+    - name: ArchLinux
+      versions: [all]
+    - name: Ubuntu
+      versions: [all]
+    - name: Debian
+      versions: [all]
+
+dependencies: []

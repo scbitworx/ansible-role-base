@@ -1,0 +1,3 @@
+---
+# Cross-distro internal variables for the base role.
+# Distro-specific variables are loaded from Archlinux.yml or Debian.yml.

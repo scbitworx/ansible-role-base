@@ -1,0 +1,12 @@
+---
+- name: Set timezone
+  community.general.timezone:
+    name: "{{ base_timezone }}"
+  become: true
+
+- name: Generate locale (Debian/Ubuntu)
+  community.general.locale_gen:
+    name: "{{ base_locale }}"
+    state: present
+  become: true
+  when: ansible_facts['os_family'] == "Debian"

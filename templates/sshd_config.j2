@@ -1,0 +1,22 @@
+# {{ ansible_managed }}
+# Hardened SSH configuration deployed by ansible-role-base
+
+Port {{ base_sshd_port }}
+AddressFamily any
+ListenAddress 0.0.0.0
+ListenAddress ::
+
+HostKey /etc/ssh/ssh_host_rsa_key
+HostKey /etc/ssh/ssh_host_ed25519_key
+
+PermitRootLogin {{ base_sshd_permit_root_login }}
+PubkeyAuthentication {{ base_sshd_pubkey_authentication }}
+PasswordAuthentication {{ base_sshd_password_authentication }}
+KbdInteractiveAuthentication no
+UsePAM yes
+
+X11Forwarding {{ base_sshd_x11_forwarding }}
+PrintMotd no
+AcceptEnv LANG LC_*
+
+Subsystem sftp {{ __base_sftp_server_path }}

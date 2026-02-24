@@ -1,0 +1,25 @@
+---
+profile: production
+
+strict: true
+
+extra_vars:
+  base_user: "bwright"
+
+mock_roles: []
+
+exclude_paths:
+  - .github/
+  - molecule/
+  - tests/
+
+enable_list:
+  - fqcn
+  - no-changed-when
+  - no-handler
+  - yaml
+
+warn_list:
+  - role-name[match]
+
+skip_list: []

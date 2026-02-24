@@ -1,0 +1,198 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    # --- Package verification ---
+    - name: Check that git is installed
+      ansible.builtin.stat:
+        path: /usr/bin/git
+      register: git_check
+
+    - name: Assert git is installed
+      ansible.builtin.assert:
+        that:
+          - git_check.stat.exists
+        fail_msg: "git is not installed"
+
+    - name: Check that vim is installed
+      ansible.builtin.stat:
+        path: /usr/bin/vim
+      register: vim_check
+
+    - name: Assert vim is installed
+      ansible.builtin.assert:
+        that:
+          - vim_check.stat.exists
+        fail_msg: "vim is not installed"
+
+    - name: Check that curl is installed
+      ansible.builtin.stat:
+        path: /usr/bin/curl
+      register: curl_check
+
+    - name: Assert curl is installed
+      ansible.builtin.assert:
+        that:
+          - curl_check.stat.exists
+        fail_msg: "curl is not installed"
+
+    # --- User verification ---
+    - name: Check admin user exists
+      ansible.builtin.command: getent passwd bwright
+      register: user_check
+      changed_when: false
+
+    - name: Assert admin user exists
+      ansible.builtin.assert:
+        that:
+          - user_check.rc == 0
+        fail_msg: "Admin user bwright does not exist"
+
+    # --- Timezone verification ---
+    - name: Check timezone file exists
+      ansible.builtin.stat:
+        path: /etc/localtime
+      register: tz_check
+
+    - name: Assert timezone file exists
+      ansible.builtin.assert:
+        that:
+          - tz_check.stat.exists
+        fail_msg: "/etc/localtime does not exist"
+
+    # --- SSH verification ---
+    - name: Check sshd_config exists
+      ansible.builtin.stat:
+        path: /etc/ssh/sshd_config
+      register: sshd_conf
+
+    - name: Assert sshd_config exists
+      ansible.builtin.assert:
+        that:
+          - sshd_conf.stat.exists
+          - sshd_conf.stat.isreg
+        fail_msg: "/etc/ssh/sshd_config does not exist"
+
+    - name: Read sshd_config content
+      ansible.builtin.slurp:
+        src: /etc/ssh/sshd_config
+      register: sshd_conf_content
+
+    - name: Assert sshd_config contains hardened settings
+      ansible.builtin.assert:
+        that:
+          - "'PermitRootLogin no' in sshd_conf_content.content | b64decode"
+          - "'PasswordAuthentication no' in sshd_conf_content.content | b64decode"
+          - "'PubkeyAuthentication yes' in sshd_conf_content.content | b64decode"
+          - "'KbdInteractiveAuthentication no' in sshd_conf_content.content | b64decode"
+        fail_msg: "sshd_config does not contain expected hardened settings"
+
+    # --- Shell skeleton verification ---
+    - name: Check bash config directory exists
+      ansible.builtin.stat:
+        path: /home/bwright/.config/bash
+      register: bash_dir
+
+    - name: Assert bash config directory exists
+      ansible.builtin.assert:
+        that:
+          - bash_dir.stat.exists
+          - bash_dir.stat.isdir
+        fail_msg: "~/.config/bash/ directory does not exist"
+
+    - name: Check conf.d directory exists
+      ansible.builtin.stat:
+        path: /home/bwright/.config/bash/conf.d
+      register: confd_dir
+
+    - name: Assert conf.d directory exists
+      ansible.builtin.assert:
+        that:
+          - confd_dir.stat.exists
+          - confd_dir.stat.isdir
+        fail_msg: "~/.config/bash/conf.d/ directory does not exist"
+
+    - name: Check bashrc exists
+      ansible.builtin.stat:
+        path: /home/bwright/.config/bash/bashrc
+      register: bashrc_file
+
+    - name: Assert bashrc exists
+      ansible.builtin.assert:
+        that:
+          - bashrc_file.stat.exists
+          - bashrc_file.stat.isreg
+        fail_msg: "~/.config/bash/bashrc does not exist"
+
+    - name: Read bashrc content
+      ansible.builtin.slurp:
+        src: /home/bwright/.config/bash/bashrc
+      register: bashrc_content
+
+    - name: Assert bashrc contains conf.d sourcing loop
+      ansible.builtin.assert:
+        that:
+          - "'conf.d/*.sh' in bashrc_content.content | b64decode"
+        fail_msg: "bashrc does not contain conf.d sourcing loop"
+
+    - name: Check profile exists
+      ansible.builtin.stat:
+        path: /home/bwright/.config/bash/profile
+      register: profile_file
+
+    - name: Assert profile exists
+      ansible.builtin.assert:
+        that:
+          - profile_file.stat.exists
+          - profile_file.stat.isreg
+        fail_msg: "~/.config/bash/profile does not exist"
+
+    - name: Check inputrc exists
+      ansible.builtin.stat:
+        path: /home/bwright/.config/bash/inputrc
+      register: inputrc_file
+
+    - name: Assert inputrc exists
+      ansible.builtin.assert:
+        that:
+          - inputrc_file.stat.exists
+          - inputrc_file.stat.isreg
+        fail_msg: "~/.config/bash/inputrc does not exist"
+
+    # --- Symlink verification ---
+    - name: Check .bashrc symlink
+      ansible.builtin.stat:
+        path: /home/bwright/.bashrc
+      register: bashrc_link
+
+    - name: Assert .bashrc is a symlink to config/bash/bashrc
+      ansible.builtin.assert:
+        that:
+          - bashrc_link.stat.islnk
+          - bashrc_link.stat.lnk_target == ".config/bash/bashrc"
+        fail_msg: "~/.bashrc is not a symlink to .config/bash/bashrc"
+
+    - name: Check .profile symlink
+      ansible.builtin.stat:
+        path: /home/bwright/.profile
+      register: profile_link
+
+    - name: Assert .profile is a symlink to config/bash/profile
+      ansible.builtin.assert:
+        that:
+          - profile_link.stat.islnk
+          - profile_link.stat.lnk_target == ".config/bash/profile"
+        fail_msg: "~/.profile is not a symlink to .config/bash/profile"
+
+    - name: Check .inputrc symlink
+      ansible.builtin.stat:
+        path: /home/bwright/.inputrc
+      register: inputrc_link
+
+    - name: Assert .inputrc is a symlink to config/bash/inputrc
+      ansible.builtin.assert:
+        that:
+          - inputrc_link.stat.islnk
+          - inputrc_link.stat.lnk_target == ".config/bash/inputrc"
+        fail_msg: "~/.inputrc is not a symlink to .config/bash/inputrc"

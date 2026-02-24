@@ -1,0 +1,21 @@
+---
+- name: Prepare Arch Linux container
+  hosts: archlinux
+  gather_facts: false
+  tasks:
+    - name: Install Python and sudo (Arch)
+      ansible.builtin.raw: pacman -Syu --noconfirm python sudo
+
+- name: Prepare Debian/Ubuntu containers
+  hosts: debian:ubuntu
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+        cache_valid_time: 600
+
+    - name: Install locales package
+      ansible.builtin.apt:
+        name: locales
+        state: present
