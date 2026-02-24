@@ -222,6 +222,29 @@
           - "'conf.d/*.sh' in bashrc_content.content | b64decode"
         fail_msg: "bashrc does not contain conf.d sourcing loop"
 
+    - name: Assert bashrc exports EDITOR and VISUAL
+      ansible.builtin.assert:
+        that:
+          - "'export EDITOR=' in bashrc_content.content | b64decode"
+          - "'export VISUAL=' in bashrc_content.content | b64decode"
+        fail_msg: "bashrc does not export EDITOR/VISUAL"
+
+    - name: Assert bashrc exports HISTSIZE
+      ansible.builtin.assert:
+        that:
+          - "'export HISTSIZE=' in bashrc_content.content | b64decode"
+          - "'export HISTFILESIZE=' in bashrc_content.content | b64decode"
+        fail_msg: "bashrc does not export HISTSIZE/HISTFILESIZE"
+
+    - name: Assert bashrc exports XDG base directories
+      ansible.builtin.assert:
+        that:
+          - "'export XDG_CONFIG_HOME=' in bashrc_content.content | b64decode"
+          - "'export XDG_DATA_HOME=' in bashrc_content.content | b64decode"
+          - "'export XDG_STATE_HOME=' in bashrc_content.content | b64decode"
+          - "'export XDG_CACHE_HOME=' in bashrc_content.content | b64decode"
+        fail_msg: "bashrc does not export XDG base directories"
+
     - name: Check profile exists
       ansible.builtin.stat:
         path: "{{ test_user_home }}/.config/bash/profile"

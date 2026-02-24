@@ -6,9 +6,11 @@ AddressFamily any
 ListenAddress 0.0.0.0
 ListenAddress ::
 
+# Host keys
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_ed25519_key
 
+# Authentication
 PermitRootLogin {{ base_sshd_permit_root_login }}
 PubkeyAuthentication {{ base_sshd_pubkey_authentication }}
 PasswordAuthentication {{ base_sshd_password_authentication }}

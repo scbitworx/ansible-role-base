@@ -4,6 +4,9 @@
     name: "{{ base_timezone }}"
   become: true
 
+# Arch Linux manages locale via /etc/locale.gen + locale-gen, which is
+# typically handled once during installation. The locale_gen module only
+# supports glibc-based Debian/Ubuntu systems.
 - name: Generate locale (Debian/Ubuntu)
   community.general.locale_gen:
     name: "{{ base_locale }}"
