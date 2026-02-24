@@ -82,6 +82,7 @@ The role deploys an XDG-compliant shell configuration per user:
   profile.d/     # drop-in directory for higher-order roles
 
 ~/.config/bash/
+  bash_profile   # sources ~/.profile (ensures bash login shells use POSIX profile)
   bashrc         # conf.d/ sourcing loop, XDG exports, EDITOR, HISTSIZE
   conf.d/        # drop-in directory for other roles
 
@@ -95,6 +96,7 @@ Higher-order roles (server, workstation) can extend or override the login
 profile by dropping files into `profile.d/`.
 
 Symlinks are created for compatibility:
+- `~/.bash_profile` -> `.config/bash/bash_profile`
 - `~/.bashrc` -> `.config/bash/bashrc`
 - `~/.profile` -> `.config/profile`
 - `~/.inputrc` -> `.config/readline/inputrc`

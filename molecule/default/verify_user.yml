@@ -210,6 +210,29 @@
       - "'export XDG_CACHE_HOME=' in bashrc_content.content | b64decode"
     fail_msg: "bashrc does not export XDG base directories for {{ test_user.name }}"
 
+- name: "{{ test_user.name }} | Check bash_profile exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/bash/bash_profile"
+  register: bash_profile_file
+
+- name: "{{ test_user.name }} | Assert bash_profile exists"
+  ansible.builtin.assert:
+    that:
+      - bash_profile_file.stat.exists
+      - bash_profile_file.stat.isreg
+    fail_msg: "~/.config/bash/bash_profile does not exist for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Read bash_profile content"
+  ansible.builtin.slurp:
+    src: "{{ test_user_home }}/.config/bash/bash_profile"
+  register: bash_profile_content
+
+- name: "{{ test_user.name }} | Assert bash_profile sources ~/.profile"
+  ansible.builtin.assert:
+    that:
+      - "'. ~/.profile' in bash_profile_content.content | b64decode"
+    fail_msg: "bash_profile does not source ~/.profile for {{ test_user.name }}"
+
 - name: "{{ test_user.name }} | Check inputrc exists"
   ansible.builtin.stat:
     path: "{{ test_user_home }}/.config/readline/inputrc"
@@ -223,6 +246,18 @@
     fail_msg: "~/.config/readline/inputrc does not exist for {{ test_user.name }}"
 
 # --- Symlink verification ---
+- name: "{{ test_user.name }} | Check .bash_profile symlink"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.bash_profile"
+  register: bash_profile_link
+
+- name: "{{ test_user.name }} | Assert .bash_profile is a symlink to config/bash/bash_profile"
+  ansible.builtin.assert:
+    that:
+      - bash_profile_link.stat.islnk
+      - bash_profile_link.stat.lnk_target == ".config/bash/bash_profile"
+    fail_msg: "~/.bash_profile is not a symlink to .config/bash/bash_profile for {{ test_user.name }}"
+
 - name: "{{ test_user.name }} | Check .bashrc symlink"
   ansible.builtin.stat:
     path: "{{ test_user_home }}/.bashrc"

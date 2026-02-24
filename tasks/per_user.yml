@@ -71,6 +71,15 @@
     mode: "0755"
   become: true
 
+- name: Deploy bash_profile for {{ __base_admin_user.name }}
+  ansible.builtin.template:
+    src: bash_profile.j2
+    dest: "{{ __base_admin_user_home }}/.config/bash/bash_profile"
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
+    mode: "0644"
+  become: true
+
 - name: Deploy bashrc for {{ __base_admin_user.name }}
   ansible.builtin.template:
     src: bashrc.j2
@@ -102,6 +111,16 @@
   ansible.builtin.file:
     src: ".config/profile"
     dest: "{{ __base_admin_user_home }}/.profile"
+    state: link
+    force: true
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
+  become: true
+
+- name: Symlink bash_profile to home directory for {{ __base_admin_user.name }}
+  ansible.builtin.file:
+    src: ".config/bash/bash_profile"
+    dest: "{{ __base_admin_user_home }}/.bash_profile"
     state: link
     force: true
     owner: "{{ __base_admin_user.name }}"
