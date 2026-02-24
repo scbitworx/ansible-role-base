@@ -9,12 +9,3 @@
     validate: sshd -t -f %s
   become: true
   notify: Base | restart sshd
-
-- name: Deploy authorized keys for admin user
-  ansible.posix.authorized_key:
-    user: "{{ base_user }}"
-    key: "{{ base_authorized_keys | join('\n') }}"
-    state: present
-    exclusive: true
-  become: true
-  when: base_authorized_keys | length > 0

@@ -4,7 +4,8 @@ profile: production
 strict: true
 
 extra_vars:
-  base_user: "bwright"
+  base_users:
+    - name: bwright
 
 mock_roles: []
 

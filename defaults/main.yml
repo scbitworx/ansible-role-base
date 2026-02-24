@@ -5,11 +5,15 @@
 # Additional packages beyond the base set
 base_extra_packages: []
 
-# Primary admin user
-base_user: "bwright"
-base_user_groups: []
-base_user_shell: "/bin/bash"
-base_user_create_home: true
+# User accounts to create and configure.
+# Each entry supports: name (required), groups, shell, create_home,
+# authorized_keys, sudo_passwordless.
+base_users:
+  - name: bwright
+
+# Per-user defaults (override per entry):
+#   groups: []            shell: /bin/bash       create_home: true
+#   authorized_keys: []   sudo_passwordless: true
 
 # Timezone and locale
 base_timezone: "America/New_York"
@@ -26,12 +30,6 @@ base_sshd_login_grace_time: 30
 base_sshd_client_alive_interval: 300
 base_sshd_client_alive_count_max: 2
 base_sshd_max_sessions: 3
-
-# Authorized SSH keys (list of public key strings)
-base_authorized_keys: []
-
-# Sudo configuration
-base_sudo_passwordless: true
 
 # Shell settings
 base_editor: "vim"

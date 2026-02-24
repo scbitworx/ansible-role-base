@@ -1,0 +1,260 @@
+---
+# Per-user verification tasks, included from verify.yml with loop_var: test_user
+
+- name: "{{ test_user.name }} | Get user info from passwd"
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Set user home directory fact"
+  ansible.builtin.set_fact:
+    test_user_home: "{{ ansible_facts.getent_passwd[test_user.name][4] }}"
+
+- name: "{{ test_user.name }} | Check user exists"
+  ansible.builtin.command: "getent passwd {{ test_user.name }}"
+  register: user_check
+  changed_when: false
+
+- name: "{{ test_user.name }} | Assert user exists"
+  ansible.builtin.assert:
+    that:
+      - user_check.rc == 0
+    fail_msg: "User {{ test_user.name }} does not exist"
+
+# --- Sudo group verification ---
+- name: "{{ test_user.name }} | Get admin group name"
+  ansible.builtin.set_fact:
+    expected_admin_group: "{{ 'wheel' if ansible_facts['os_family'] == 'Archlinux' else 'sudo' }}"
+
+- name: "{{ test_user.name }} | Check user is in admin group"
+  ansible.builtin.command: "id -nG {{ test_user.name }}"
+  register: user_groups
+  changed_when: false
+
+- name: "{{ test_user.name }} | Assert user is in admin group"
+  ansible.builtin.assert:
+    that:
+      - expected_admin_group in user_groups.stdout.split()
+    fail_msg: "User {{ test_user.name }} is not in {{ expected_admin_group }} group"
+
+# --- Sudoers verification ---
+- name: "{{ test_user.name }} | Check sudoers drop-in exists"
+  ansible.builtin.stat:
+    path: "/etc/sudoers.d/{{ test_user.name }}"
+  register: sudoers_file
+
+- name: "{{ test_user.name }} | Assert sudoers drop-in exists with correct permissions"
+  ansible.builtin.assert:
+    that:
+      - sudoers_file.stat.exists
+      - sudoers_file.stat.isreg
+      - sudoers_file.stat.mode == '0440'
+    fail_msg: "/etc/sudoers.d/{{ test_user.name }} does not exist or has wrong permissions"
+
+- name: "{{ test_user.name }} | Read sudoers drop-in content"
+  ansible.builtin.slurp:
+    src: "/etc/sudoers.d/{{ test_user.name }}"
+  register: sudoers_content
+
+- name: "{{ test_user.name }} | Assert sudoers drop-in contains NOPASSWD"
+  ansible.builtin.assert:
+    that:
+      - "'NOPASSWD' in sudoers_content.content | b64decode"
+    fail_msg: "sudoers drop-in for {{ test_user.name }} does not contain NOPASSWD"
+
+# --- Authorized keys verification ---
+- name: "{{ test_user.name }} | Check authorized_keys file exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.ssh/authorized_keys"
+  register: authkeys_file
+
+- name: "{{ test_user.name }} | Assert authorized_keys file exists with correct permissions"
+  ansible.builtin.assert:
+    that:
+      - authkeys_file.stat.exists
+      - authkeys_file.stat.isreg
+      - authkeys_file.stat.mode == '0600'
+    fail_msg: "~/.ssh/authorized_keys for {{ test_user.name }} does not exist or has wrong permissions"
+
+- name: "{{ test_user.name }} | Read authorized_keys content"
+  ansible.builtin.slurp:
+    src: "{{ test_user_home }}/.ssh/authorized_keys"
+  register: authkeys_content
+
+- name: "{{ test_user.name }} | Assert authorized_keys contains expected keys"
+  ansible.builtin.assert:
+    that:
+      - "item in authkeys_content.content | b64decode"
+    fail_msg: "authorized_keys for {{ test_user.name }} does not contain {{ item }}"
+  loop: "{{ test_user.expected_keys }}"
+
+# --- Profile and profile.d verification ---
+- name: "{{ test_user.name }} | Check profile exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/profile"
+  register: profile_file
+
+- name: "{{ test_user.name }} | Assert profile exists"
+  ansible.builtin.assert:
+    that:
+      - profile_file.stat.exists
+      - profile_file.stat.isreg
+    fail_msg: "~/.config/profile does not exist for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Read profile content"
+  ansible.builtin.slurp:
+    src: "{{ test_user_home }}/.config/profile"
+  register: profile_content
+
+- name: "{{ test_user.name }} | Assert profile contains PATH, bashrc source, and profile.d loop"
+  ansible.builtin.assert:
+    that:
+      - "'.local/bin' in profile_content.content | b64decode"
+      - "'bashrc' in profile_content.content | b64decode"
+      - "'profile.d' in profile_content.content | b64decode"
+      - "'*.conf' in profile_content.content | b64decode"
+    fail_msg: "profile does not contain expected content for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check profile.d directory exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/profile.d"
+  register: profiled_dir
+
+- name: "{{ test_user.name }} | Assert profile.d directory exists"
+  ansible.builtin.assert:
+    that:
+      - profiled_dir.stat.exists
+      - profiled_dir.stat.isdir
+    fail_msg: "~/.config/profile.d/ does not exist for {{ test_user.name }}"
+
+# --- Shell skeleton verification ---
+- name: "{{ test_user.name }} | Check bash config directory exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/bash"
+  register: bash_dir
+
+- name: "{{ test_user.name }} | Assert bash config directory exists"
+  ansible.builtin.assert:
+    that:
+      - bash_dir.stat.exists
+      - bash_dir.stat.isdir
+    fail_msg: "~/.config/bash/ directory does not exist for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check conf.d directory exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/bash/conf.d"
+  register: confd_dir
+
+- name: "{{ test_user.name }} | Assert conf.d directory exists"
+  ansible.builtin.assert:
+    that:
+      - confd_dir.stat.exists
+      - confd_dir.stat.isdir
+    fail_msg: "~/.config/bash/conf.d/ directory does not exist for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check readline config directory exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/readline"
+  register: readline_dir
+
+- name: "{{ test_user.name }} | Assert readline config directory exists"
+  ansible.builtin.assert:
+    that:
+      - readline_dir.stat.exists
+      - readline_dir.stat.isdir
+    fail_msg: "~/.config/readline/ directory does not exist for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check bashrc exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/bash/bashrc"
+  register: bashrc_file
+
+- name: "{{ test_user.name }} | Assert bashrc exists"
+  ansible.builtin.assert:
+    that:
+      - bashrc_file.stat.exists
+      - bashrc_file.stat.isreg
+    fail_msg: "~/.config/bash/bashrc does not exist for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Read bashrc content"
+  ansible.builtin.slurp:
+    src: "{{ test_user_home }}/.config/bash/bashrc"
+  register: bashrc_content
+
+- name: "{{ test_user.name }} | Assert bashrc contains conf.d sourcing loop"
+  ansible.builtin.assert:
+    that:
+      - "'conf.d/*.bash' in bashrc_content.content | b64decode"
+    fail_msg: "bashrc does not contain conf.d sourcing loop for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Assert bashrc exports EDITOR and VISUAL"
+  ansible.builtin.assert:
+    that:
+      - "'export EDITOR=' in bashrc_content.content | b64decode"
+      - "'export VISUAL=' in bashrc_content.content | b64decode"
+    fail_msg: "bashrc does not export EDITOR/VISUAL for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Assert bashrc exports HISTSIZE"
+  ansible.builtin.assert:
+    that:
+      - "'export HISTSIZE=' in bashrc_content.content | b64decode"
+      - "'export HISTFILESIZE=' in bashrc_content.content | b64decode"
+    fail_msg: "bashrc does not export HISTSIZE/HISTFILESIZE for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Assert bashrc exports XDG base directories"
+  ansible.builtin.assert:
+    that:
+      - "'export XDG_CONFIG_HOME=' in bashrc_content.content | b64decode"
+      - "'export XDG_DATA_HOME=' in bashrc_content.content | b64decode"
+      - "'export XDG_STATE_HOME=' in bashrc_content.content | b64decode"
+      - "'export XDG_CACHE_HOME=' in bashrc_content.content | b64decode"
+    fail_msg: "bashrc does not export XDG base directories for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check inputrc exists"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.config/readline/inputrc"
+  register: inputrc_file
+
+- name: "{{ test_user.name }} | Assert inputrc exists"
+  ansible.builtin.assert:
+    that:
+      - inputrc_file.stat.exists
+      - inputrc_file.stat.isreg
+    fail_msg: "~/.config/readline/inputrc does not exist for {{ test_user.name }}"
+
+# --- Symlink verification ---
+- name: "{{ test_user.name }} | Check .bashrc symlink"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.bashrc"
+  register: bashrc_link
+
+- name: "{{ test_user.name }} | Assert .bashrc is a symlink to config/bash/bashrc"
+  ansible.builtin.assert:
+    that:
+      - bashrc_link.stat.islnk
+      - bashrc_link.stat.lnk_target == ".config/bash/bashrc"
+    fail_msg: "~/.bashrc is not a symlink to .config/bash/bashrc for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check .profile symlink"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.profile"
+  register: profile_link
+
+- name: "{{ test_user.name }} | Assert .profile is a symlink to config/profile"
+  ansible.builtin.assert:
+    that:
+      - profile_link.stat.islnk
+      - profile_link.stat.lnk_target == ".config/profile"
+    fail_msg: "~/.profile is not a symlink to .config/profile for {{ test_user.name }}"
+
+- name: "{{ test_user.name }} | Check .inputrc symlink"
+  ansible.builtin.stat:
+    path: "{{ test_user_home }}/.inputrc"
+  register: inputrc_link
+
+- name: "{{ test_user.name }} | Assert .inputrc is a symlink to config/readline/inputrc"
+  ansible.builtin.assert:
+    that:
+      - inputrc_link.stat.islnk
+      - inputrc_link.stat.lnk_target == ".config/readline/inputrc"
+    fail_msg: "~/.inputrc is not a symlink to .config/readline/inputrc for {{ test_user.name }}"

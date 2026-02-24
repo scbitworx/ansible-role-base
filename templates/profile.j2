@@ -10,3 +10,10 @@ fi
 if [ -n "$BASH_VERSION" ] && [ -f "${HOME}/.config/bash/bashrc" ]; then
   . "${HOME}/.config/bash/bashrc"
 fi
+
+# Source profile drop-in fragments
+if [ -d "${HOME}/.config/profile.d" ]; then
+  for f in "${HOME}/.config/profile.d"/*.conf; do
+    [ -r "$f" ] && . "$f"
+  done
+fi

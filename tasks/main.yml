@@ -9,14 +9,15 @@
 - name: Include package tasks
   ansible.builtin.include_tasks: packages.yml
 
-- name: Include user management tasks
-  ansible.builtin.include_tasks: users.yml
+- name: Include per-user tasks
+  ansible.builtin.include_tasks: per_user.yml
+  loop: "{{ base_users }}"
+  loop_control:
+    loop_var: __base_user
+    label: "{{ __base_user.name }}"
 
 - name: Include timezone and locale tasks
   ansible.builtin.include_tasks: timezone_locale.yml
 
 - name: Include SSH configuration tasks
   ansible.builtin.include_tasks: ssh.yml
-
-- name: Include shell skeleton tasks
-  ansible.builtin.include_tasks: shell.yml
