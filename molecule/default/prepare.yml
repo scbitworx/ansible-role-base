@@ -38,3 +38,17 @@
       ansible.builtin.service:
         name: ssh
         state: started
+
+- name: Prepare all containers
+  hosts: all
+  become: true
+  tasks:
+    - name: Create dummy ansible-pull-wrapper for testing
+      ansible.builtin.copy:
+        dest: /usr/local/bin/ansible-pull-wrapper
+        content: |
+          #!/bin/bash
+          exit 0
+        owner: root
+        group: root
+        mode: "0755"

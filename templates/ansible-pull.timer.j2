@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Periodic ansible-pull timer
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec={{ base_pull_interval }}
+Persistent=true
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,30 @@
+---
+- name: Deploy ansible-pull service unit
+  ansible.builtin.template:
+    src: ansible-pull.service.j2
+    dest: /etc/systemd/system/ansible-pull.service
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Base | reload systemd
+
+- name: Deploy ansible-pull timer unit
+  ansible.builtin.template:
+    src: ansible-pull.timer.j2
+    dest: /etc/systemd/system/ansible-pull.timer
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+  notify: Base | reload systemd
+
+- name: Flush handlers to reload systemd before enabling timer
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start ansible-pull timer
+  ansible.builtin.systemd:
+    name: ansible-pull.timer
+    enabled: "{{ base_pull_timer_enabled }}"
+    state: "{{ base_pull_timer_enabled | ternary('started', 'stopped') }}"
+  become: true

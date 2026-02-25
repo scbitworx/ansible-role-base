@@ -37,3 +37,10 @@ base_sshd_max_sessions: 3
 # Shell settings
 base_editor: "vim"
 base_histsize: 10000
+
+# ansible-pull systemd timer
+base_pull_timer_enabled: true
+base_pull_interval: "4h"
+
+# Unattended security upgrades (Debian/Ubuntu only, no-op on Arch)
+base_unattended_upgrades: true

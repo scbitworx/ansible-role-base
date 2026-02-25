@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+[Unit]
+Description=Run ansible-pull to apply local configuration
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/ansible-pull-wrapper

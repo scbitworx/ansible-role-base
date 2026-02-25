@@ -4,3 +4,8 @@
     name: "{{ __base_sshd_service }}"
     state: restarted
   become: true
+
+- name: Base | reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true

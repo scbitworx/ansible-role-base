@@ -93,6 +93,121 @@
           - "'MaxSessions 3' in sshd_conf_content.content | b64decode"
         fail_msg: "sshd_config does not contain expected hardened settings"
 
+    # --- ansible-pull timer verification ---
+    - name: Check ansible-pull service unit exists
+      ansible.builtin.stat:
+        path: /etc/systemd/system/ansible-pull.service
+      register: pull_service
+
+    - name: Assert ansible-pull service unit exists with correct permissions
+      ansible.builtin.assert:
+        that:
+          - pull_service.stat.exists
+          - pull_service.stat.mode == '0644'
+        fail_msg: "ansible-pull.service does not exist or has wrong permissions"
+
+    - name: Check ansible-pull timer unit exists
+      ansible.builtin.stat:
+        path: /etc/systemd/system/ansible-pull.timer
+      register: pull_timer
+
+    - name: Assert ansible-pull timer unit exists with correct permissions
+      ansible.builtin.assert:
+        that:
+          - pull_timer.stat.exists
+          - pull_timer.stat.mode == '0644'
+        fail_msg: "ansible-pull.timer does not exist or has wrong permissions"
+
+    - name: Read ansible-pull service content
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/ansible-pull.service
+      register: pull_service_content
+
+    - name: Assert ansible-pull service contains expected settings
+      ansible.builtin.assert:
+        that:
+          - "'/usr/local/bin/ansible-pull-wrapper' in pull_service_content.content | b64decode"
+          - "'Type=oneshot' in pull_service_content.content | b64decode"
+        fail_msg: "ansible-pull.service does not contain expected settings"
+
+    - name: Read ansible-pull timer content
+      ansible.builtin.slurp:
+        src: /etc/systemd/system/ansible-pull.timer
+      register: pull_timer_content
+
+    - name: Assert ansible-pull timer contains expected settings
+      ansible.builtin.assert:
+        that:
+          - "'OnUnitActiveSec=4h' in pull_timer_content.content | b64decode"
+          - "'Persistent=true' in pull_timer_content.content | b64decode"
+          - "'timers.target' in pull_timer_content.content | b64decode"
+        fail_msg: "ansible-pull.timer does not contain expected settings"
+
+    - name: Check ansible-pull timer is enabled
+      ansible.builtin.command: systemctl is-enabled ansible-pull.timer
+      register: timer_enabled
+      changed_when: false
+
+    - name: Assert ansible-pull timer is enabled
+      ansible.builtin.assert:
+        that:
+          - timer_enabled.stdout == 'enabled'
+        fail_msg: "ansible-pull.timer is not enabled"
+
+    # --- Unattended-upgrades verification (Debian/Ubuntu only) ---
+    - name: Check unattended-upgrades is installed (Debian/Ubuntu)
+      ansible.builtin.command: dpkg -l unattended-upgrades
+      register: ua_installed
+      changed_when: false
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Assert unattended-upgrades is installed (Debian/Ubuntu)
+      ansible.builtin.assert:
+        that:
+          - ua_installed.rc == 0
+        fail_msg: "unattended-upgrades package is not installed"
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Check 50unattended-upgrades config exists (Debian/Ubuntu)
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/50unattended-upgrades
+      register: ua_conf
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Assert 50unattended-upgrades config exists (Debian/Ubuntu)
+      ansible.builtin.assert:
+        that:
+          - ua_conf.stat.exists
+        fail_msg: "/etc/apt/apt.conf.d/50unattended-upgrades does not exist"
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Read 50unattended-upgrades content (Debian/Ubuntu)
+      ansible.builtin.slurp:
+        src: /etc/apt/apt.conf.d/50unattended-upgrades
+      register: ua_conf_content
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Assert 50unattended-upgrades contains expected settings (Debian/Ubuntu)
+      ansible.builtin.assert:
+        that:
+          - "'security' in ua_conf_content.content | b64decode"
+          - "'Automatic-Reboot \"false\"' in ua_conf_content.content | b64decode"
+        fail_msg: "50unattended-upgrades does not contain expected settings"
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Check 20auto-upgrades config exists (Debian/Ubuntu)
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/20auto-upgrades
+      register: auto_upgrades_conf
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Assert 20auto-upgrades config exists (Debian/Ubuntu)
+      ansible.builtin.assert:
+        that:
+          - auto_upgrades_conf.stat.exists
+        fail_msg: "/etc/apt/apt.conf.d/20auto-upgrades does not exist"
+      when: ansible_facts['os_family'] == "Debian"
+
     # --- Per-user verification (looped) ---
     - name: Verify per-user configuration
       ansible.builtin.include_tasks: verify_user.yml

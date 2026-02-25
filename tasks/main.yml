@@ -21,3 +21,12 @@
 
 - name: Include SSH configuration tasks
   ansible.builtin.include_tasks: ssh.yml
+
+- name: Include ansible-pull timer tasks
+  ansible.builtin.include_tasks: ansible_pull.yml
+
+- name: Include unattended-upgrades tasks (Debian/Ubuntu)
+  ansible.builtin.include_tasks: unattended_upgrades.yml
+  when:
+    - ansible_facts['os_family'] == "Debian"
+    - base_unattended_upgrades
