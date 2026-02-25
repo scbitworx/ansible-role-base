@@ -40,6 +40,10 @@ platforms:
 
 provisioner:
   name: ansible
+dependency:
+  name: galaxy
+  options:
+    requirements-file: collections.yml
 verifier:
   name: ansible
 
@@ -47,7 +51,7 @@ verifier:
 # Uncomment dependency/cleanup/side_effect when the role needs them.
 scenario:
   test_sequence:
-    # - dependency  # enable when requirements.yml or collections.yml is added
+    - dependency
     # - cleanup     # enable when a cleanup.yml playbook is added
     - destroy
     - syntax
