@@ -21,6 +21,27 @@
       - user_check.rc == 0
     fail_msg: "User {{ test_user.name }} does not exist"
 
+# --- User Private Group (UPG) verification ---
+- name: "{{ test_user.name }} | Check matching primary group exists"
+  ansible.builtin.command: "getent group {{ test_user.name }}"
+  register: upg_check
+  changed_when: false
+
+- name: "{{ test_user.name }} | Get primary group name"
+  ansible.builtin.command: "id -gn {{ test_user.name }}"
+  register: primary_group
+  changed_when: false
+
+- name: "{{ test_user.name }} | Assert user private group is primary group"
+  ansible.builtin.assert:
+    that:
+      - upg_check.rc == 0
+      - primary_group.stdout == test_user.name
+    fail_msg: >-
+      User {{ test_user.name }} should have a matching private group
+      as primary group (UPG convention), but primary group is
+      '{{ primary_group.stdout }}'
+
 # --- Sudo group verification ---
 - name: "{{ test_user.name }} | Get admin group name"
   ansible.builtin.set_fact:
