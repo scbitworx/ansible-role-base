@@ -1,4 +1,12 @@
 ---
+# IMPORTANT: Always use `state: present`, never `state: latest`.
+# On Arch Linux, installing or upgrading a single package without a full
+# system upgrade (`pacman -Syu`) is a partial upgrade — an unsupported
+# configuration that can cause shared library mismatches and broken
+# dependencies.  `state: present` is safe because it only installs missing
+# packages at the current repo version; it does not upgrade already-installed
+# packages.  This constraint applies to all roles in the project.
+
 - name: Install base packages
   ansible.builtin.package:
     name: "{{ __base_packages }}"
