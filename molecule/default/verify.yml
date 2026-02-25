@@ -8,6 +8,7 @@
         expected_keys:
           - test-key-1
           - test-key-2
+        password_hash: true
       - name: testuser2
         expected_keys:
           - test-key-3

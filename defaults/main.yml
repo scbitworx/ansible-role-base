@@ -7,7 +7,7 @@ base_extra_packages: []
 
 # Administrative user accounts to create and configure.
 # Each entry supports: name (required), groups, shell, create_home,
-# authorized_keys, sudo_passwordless.
+# authorized_keys, sudo_passwordless, password_hash.
 base_admin_users: []
 
 # Per-user defaults (override per entry):
@@ -16,6 +16,7 @@ base_admin_users: []
 #   create_home: true
 #   authorized_keys: []
 #   sudo_passwordless: true
+#   password_hash: (optional) pre-hashed password for /etc/shadow
 
 # Timezone and locale
 base_timezone: "America/New_York"

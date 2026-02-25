@@ -37,6 +37,10 @@ The base role enforces a security-first configuration on all hosts:
   for that user will be removed on the next run. To add a new key, add it
   to the user's entry in inventory (`group_vars/all.yml` or `host_vars/`),
   not via `ssh-copy-id`
+- **Password management**: An optional `password_hash` property sets the user
+  password in `/etc/shadow`. When omitted, the account remains locked (SSH
+  key-only). Hashes should be generated with `openssl passwd -6` and
+  vault-encrypted in production inventory
 - **Sudoers management**: A validated sudoers drop-in is deployed per user.
   The admin group (`wheel` on Arch, `sudo` on Debian/Ubuntu) is automatically
   assigned based on the distribution
@@ -74,6 +78,7 @@ Each entry in `base_admin_users` supports:
 | `create_home` | `true` | Create home directory |
 | `authorized_keys` | `[]` | List of SSH public key strings |
 | `sudo_passwordless` | `true` | Grant passwordless sudo |
+| `password_hash` | (omitted) | Pre-hashed password for `/etc/shadow` |
 
 ## Shell Skeleton
 

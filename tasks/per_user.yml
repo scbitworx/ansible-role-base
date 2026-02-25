@@ -6,6 +6,7 @@
     groups: "{{ [__base_admin_group] + (__base_admin_user.groups | default([])) }}"
     append: true
     create_home: "{{ __base_admin_user.create_home | default(true) }}"
+    password: "{{ __base_admin_user.password_hash | default(omit) }}"
   become: true
   register: __base_admin_user_result
 

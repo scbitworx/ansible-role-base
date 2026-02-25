@@ -293,3 +293,23 @@
       - inputrc_link.stat.islnk
       - inputrc_link.stat.lnk_target == ".config/readline/inputrc"
     fail_msg: "~/.inputrc is not a symlink to .config/readline/inputrc for {{ test_user.name }}"
+
+# --- Password / shadow verification ---
+- name: "{{ test_user.name }} | Read shadow entry"
+  ansible.builtin.command: "getent shadow {{ test_user.name }}"
+  register: shadow_entry
+  changed_when: false
+
+- name: "{{ test_user.name }} | Assert password hash is set (when password_hash defined)"
+  ansible.builtin.assert:
+    that:
+      - shadow_entry.stdout.split(':')[1] is match('^\$6\$')
+    fail_msg: "Shadow entry for {{ test_user.name }} does not contain a SHA-512 hash"
+  when: test_user.password_hash is defined
+
+- name: "{{ test_user.name }} | Assert account is locked (when password_hash not defined)"
+  ansible.builtin.assert:
+    that:
+      - shadow_entry.stdout.split(':')[1] in ['!', '*', '!!', '']
+    fail_msg: "Shadow entry for {{ test_user.name }} should be locked but is: {{ shadow_entry.stdout.split(':')[1] }}"
+  when: test_user.password_hash is not defined
