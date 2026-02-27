@@ -131,7 +131,7 @@ ansible-galaxy collection install -r meta/requirements.yml
 - Install the toolchain:
 
 ```bash
-pip install ansible-core ansible-lint yamllint molecule molecule-plugins[docker]
+pip install ansible-core ansible-lint yamllint molecule molecule-plugins[docker] pytest-testinfra
 ansible-galaxy collection install community.general ansible.posix
 ```
 
@@ -142,10 +142,12 @@ yamllint .
 ansible-lint
 ```
 
-### Molecule (full integration test)
+### Molecule — Docker (default scenario)
+
+Runs all three platforms (Arch, Ubuntu, Debian) in Docker containers:
 
 ```bash
-# Run full test suite (lint + converge + verify + destroy)
+# Run full test suite (create + converge + idempotence + verify + destroy)
 molecule test
 
 # Converge and keep containers running for debugging
@@ -154,6 +156,30 @@ molecule login -h archlinux
 molecule verify
 molecule destroy
 ```
+
+### Molecule — Vagrant (integration scenario)
+
+Runs a full VM via Vagrant + libvirt for tests that require a real kernel
+and init system. Currently Arch Linux only.
+
+**Prerequisites:**
+
+- `vagrant` package
+- `vagrant-libvirt` plugin (`vagrant plugin install vagrant-libvirt`)
+- libvirt/qemu running
+
+```bash
+# Run full integration test
+molecule test -s integration
+
+# Converge and keep VM running for debugging
+molecule converge -s integration
+molecule verify -s integration
+molecule destroy -s integration
+```
+
+Tests marked `@pytest.mark.vm_only` run only in the integration scenario
+and are automatically skipped in Docker.
 
 ## License
 

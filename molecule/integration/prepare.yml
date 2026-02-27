@@ -1,0 +1,18 @@
+---
+- name: Prepare Arch Linux VM
+  hosts: all
+  become: true
+  tasks:
+    - name: Update pacman cache
+      ansible.builtin.pacman:
+        update_cache: true
+
+    - name: Create dummy ansible-pull-wrapper for testing
+      ansible.builtin.copy:
+        dest: /usr/local/bin/ansible-pull-wrapper
+        content: |
+          #!/bin/bash
+          exit 0
+        owner: root
+        group: root
+        mode: "0755"

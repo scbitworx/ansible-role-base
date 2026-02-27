@@ -1,0 +1,41 @@
+---
+driver:
+  name: vagrant
+  provider:
+    name: libvirt
+platforms:
+  - name: arch-integration
+    box: generic/arch
+    memory: 2048
+    cpus: 2
+    provider_options:
+      channel_type: unix
+    config_options:
+      synced_folder: false
+
+provisioner:
+  name: ansible
+
+dependency:
+  name: galaxy
+  options:
+    requirements-file: collections.yml
+
+verifier:
+  name: testinfra
+  directory: ../tests/
+  options:
+    v: true
+    sudo: true
+
+scenario:
+  test_sequence:
+    - dependency
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - destroy
