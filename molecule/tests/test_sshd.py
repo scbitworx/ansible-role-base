@@ -36,6 +36,22 @@ def test_sshd_hardened_setting(host, setting):
 
 
 @pytest.mark.parametrize(
+    "line",
+    [
+        "Port 22",
+        "AddressFamily any",
+        "ListenAddress 0.0.0.0",
+        "ListenAddress ::",
+        r"AcceptEnv LANG LC_\*",
+    ],
+)
+def test_sshd_additional_directive(host, line):
+    """Network and environment directives must be present in sshd_config."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert f.contains(line)
+
+
+@pytest.mark.parametrize(
     "directive",
     [
         "Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,"
@@ -83,7 +99,7 @@ def test_sshd_sftp_subsystem(host):
         "aes256-cbc",
         "3des-cbc",
         "arcfour",
-        "hmac-sha1 ",
+        r"hmac-sha1\b",
         "hmac-md5",
         "diffie-hellman-group1-sha1",
         "diffie-hellman-group14-sha1",

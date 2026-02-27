@@ -2,19 +2,23 @@
 
 
 def test_editor_is_nano(host):
-    """bashrc must export EDITOR=nano."""
+    """bashrc must export EDITOR=nano and not the default vim."""
     u = host.user("altuser1")
     f = host.file("%s/.config/bash/bashrc" % u.home)
     assert f.contains("export EDITOR='nano'")
     assert f.contains("export VISUAL='nano'")
+    assert not f.contains("EDITOR='vim'")
+    assert not f.contains("VISUAL='vim'")
 
 
 def test_histsize_is_5000(host):
-    """bashrc must export HISTSIZE=5000."""
+    """bashrc must export HISTSIZE=5000 and not the default 10000."""
     u = host.user("altuser1")
     f = host.file("%s/.config/bash/bashrc" % u.home)
     assert f.contains("export HISTSIZE=5000")
     assert f.contains("export HISTFILESIZE=5000")
+    assert not f.contains("HISTSIZE=10000")
+    assert not f.contains("HISTFILESIZE=10000")
 
 
 def test_tree_package_installed(host):

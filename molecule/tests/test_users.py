@@ -96,6 +96,7 @@ def test_authorized_keys_exclusive(host, test_user):
 @pytest.mark.parametrize(
     "subpath",
     [
+        ".config",
         ".config/profile.d",
         ".config/bash",
         ".config/bash/conf.d",
@@ -103,11 +104,12 @@ def test_authorized_keys_exclusive(host, test_user):
     ],
 )
 def test_config_directory(host, test_user, subpath):
-    """XDG config subdirectories must exist, owned by the user."""
+    """XDG config directories must exist with mode 0755, owned by the user."""
     u = host.user(test_user["name"])
     f = host.file("%s/%s" % (u.home, subpath))
     assert f.exists
     assert f.is_directory
+    assert oct(f.mode) == "0o755"
     assert f.user == test_user["name"]
     assert f.group == test_user["name"]
 
@@ -122,11 +124,12 @@ def test_config_directory(host, test_user, subpath):
     ],
 )
 def test_config_file_ownership(host, test_user, subpath):
-    """Shell config files must exist as regular files, owned by the user."""
+    """Shell config files must exist with mode 0644, owned by the user."""
     u = host.user(test_user["name"])
     f = host.file("%s/%s" % (u.home, subpath))
     assert f.exists
     assert f.is_file
+    assert oct(f.mode) == "0o644"
     assert f.user == test_user["name"]
     assert f.group == test_user["name"]
 
@@ -222,11 +225,13 @@ def test_inputrc_inherits_system(host, test_user):
     ],
 )
 def test_home_symlink(host, test_user, link_name, target):
-    """Home directory symlinks must point to XDG config locations."""
+    """Home directory symlinks must point to XDG config locations, owned by user."""
     u = host.user(test_user["name"])
     f = host.file("%s/%s" % (u.home, link_name))
     assert f.is_symlink
     assert f.linked_to == "%s/%s" % (u.home, target)
+    assert f.user == test_user["name"]
+    assert f.group == test_user["name"]
 
 
 def test_password_hash_set(host, test_user):
