@@ -9,12 +9,19 @@ platforms:
     memory: 2048
     cpus: 2
     provider_options:
-      channel_type: unix
+      management_network_name: default
+      management_network_address: 192.168.122.0/24
     config_options:
       synced_folder: false
 
 provisioner:
   name: ansible
+  config_options:
+    defaults:
+      # Workaround: molecule 25.2.0+ no longer wires driver module paths into
+      # ANSIBLE_LIBRARY. Set by run.sh wrapper. Harmless no-op once fixed.
+      # See: https://github.com/ansible-community/molecule-plugins/issues/301
+      library: "${MOLECULE_PROJECT_DIRECTORY}/plugins/modules:/usr/share/ansible:${MOLECULE_VAGRANT_PLUGIN_DIR}"
 
 dependency:
   name: galaxy

@@ -1,10 +1,21 @@
 ---
+- name: Bootstrap Python on Arch Linux VM
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Install Python and update keyring (raw — no Python yet)
+      ansible.builtin.raw: |
+        pacman -Sy --noconfirm python archlinux-keyring
+        pacman-key --populate archlinux
+
 - name: Prepare Arch Linux VM
   hosts: all
   become: true
   tasks:
-    - name: Update pacman cache
+    - name: Full system upgrade (required before installing packages on Arch)
       ansible.builtin.pacman:
+        upgrade: true
         update_cache: true
 
     - name: Create dummy ansible-pull-wrapper for testing

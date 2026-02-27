@@ -124,30 +124,37 @@ ansible-galaxy collection install -r meta/requirements.yml
 
 ## Testing
 
-### Prerequisites
+### Molecule Toolchain (venv)
 
-- Python 3 + pip
-- Docker (running)
-- Install the toolchain:
+The Molecule toolchain is installed in a dedicated Python virtual environment
+at `~/.virtualenvs/molecule/`. This avoids conflicts with system-managed
+Python packages on Arch Linux.
+
+**One-time setup:**
 
 ```bash
-pip install ansible-core ansible-lint yamllint molecule molecule-plugins[docker] pytest-testinfra
-ansible-galaxy collection install community.general ansible.posix
+python -m venv ~/.virtualenvs/molecule
+source ~/.virtualenvs/molecule/bin/activate
+pip install ansible-core ansible-lint yamllint \
+  molecule 'molecule-plugins[docker,vagrant]' pytest-testinfra
+ansible-galaxy collection install community.general ansible.posix community.docker
 ```
 
 ### Lint (fast — run before every commit)
 
 ```bash
+source ~/.virtualenvs/molecule/bin/activate
 yamllint .
 ansible-lint
 ```
 
 ### Molecule — Docker (default scenario)
 
-Runs all three platforms (Arch, Ubuntu, Debian) in Docker containers:
+Runs all three platforms (Arch, Ubuntu, Debian) in Docker containers.
+Requires Docker running.
 
 ```bash
-# Run full test suite (create + converge + idempotence + verify + destroy)
+source ~/.virtualenvs/molecule/bin/activate
 molecule test
 
 # Converge and keep containers running for debugging
@@ -162,20 +169,26 @@ molecule destroy
 Runs a full VM via Vagrant + libvirt for tests that require a real kernel
 and init system. Currently Arch Linux only.
 
-**Prerequisites:**
+**Additional prerequisites (system packages):**
 
-- `vagrant` package
-- `vagrant-libvirt` plugin (`vagrant plugin install vagrant-libvirt`)
-- libvirt/qemu running
+- `vagrant`
+- `vagrant-libvirt` plugin: `vagrant plugin install vagrant-libvirt`
+- libvirt/qemu running: `systemctl start libvirtd`
+
+A wrapper script handles venv activation and the `ANSIBLE_LIBRARY`
+workaround for a [molecule 25.2.0+ regression](https://github.com/ansible-community/molecule-plugins/issues/301):
 
 ```bash
+# Check all prerequisites
+molecule/integration/check-prereqs.sh
+
 # Run full integration test
-molecule test -s integration
+molecule/integration/run.sh test
 
 # Converge and keep VM running for debugging
-molecule converge -s integration
-molecule verify -s integration
-molecule destroy -s integration
+molecule/integration/run.sh converge
+molecule/integration/run.sh verify
+molecule/integration/run.sh destroy
 ```
 
 Tests marked `@pytest.mark.vm_only` run only in the integration scenario
