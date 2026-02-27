@@ -45,7 +45,11 @@ dependency:
   options:
     requirements-file: collections.yml
 verifier:
-  name: ansible
+  name: testinfra
+  directory: ../tests/
+  options:
+    v: true
+    sudo: true
 
 # Explicit test sequence to suppress warnings for unused steps.
 # Uncomment dependency/cleanup/side_effect when the role needs them.

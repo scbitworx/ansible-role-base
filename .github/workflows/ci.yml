@@ -46,7 +46,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install ansible-core molecule molecule-plugins[docker]
+        run: pip install ansible-core molecule molecule-plugins[docker] pytest-testinfra
 
       - name: Install Ansible collections
         run: ansible-galaxy collection install community.general ansible.posix community.docker
