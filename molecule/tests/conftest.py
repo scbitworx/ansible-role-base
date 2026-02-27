@@ -19,14 +19,22 @@ def admin_group(host):
             "name": "testuser1",
             "expected_keys": ["test-key-1", "test-key-2"],
             "password_hash": True,
+            "sudo_passwordless": True,
         },
         {
             "name": "testuser2",
             "expected_keys": ["test-key-3"],
             "password_hash": False,
+            "sudo_passwordless": True,
+        },
+        {
+            "name": "testuser3",
+            "expected_keys": ["test-key-4"],
+            "password_hash": False,
+            "sudo_passwordless": False,
         },
     ],
-    ids=["testuser1", "testuser2"],
+    ids=["testuser1", "testuser2", "testuser3"],
 )
 def test_user(request):
     """Parameterized fixture yielding each test user dict."""

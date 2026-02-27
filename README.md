@@ -63,6 +63,11 @@ The base role enforces a security-first configuration on all hosts:
 | `base_sshd_client_alive_interval` | `300` | Client alive check interval (seconds) |
 | `base_sshd_client_alive_count_max` | `2` | Max missed client alive checks |
 | `base_sshd_max_sessions` | `3` | Max multiplexed sessions |
+| `base_sshd_allow_groups` | `[]` | Restrict SSH to listed groups (empty = no restriction) |
+| `base_sshd_ciphers` | (see defaults) | Allowed SSH ciphers |
+| `base_sshd_macs` | (see defaults) | Allowed SSH MACs |
+| `base_sshd_kex_algorithms` | (see defaults) | Allowed SSH key exchange algorithms |
+| `base_sshd_host_key_algorithms` | (see defaults) | Allowed SSH host key algorithms |
 | `base_editor` | `vim` | Default EDITOR/VISUAL |
 | `base_histsize` | `10000` | Bash HISTSIZE |
 | `base_pull_timer_enabled` | `true` | Enable ansible-pull systemd timer |
@@ -196,6 +201,20 @@ molecule/integration/run.sh destroy
 
 Tests marked `@pytest.mark.vm_only` run only in the integration scenario
 and are automatically skipped in Docker.
+
+## Example Playbook
+
+    - hosts: all
+      become: true
+      vars:
+        base_admin_users:
+          - name: admin
+            authorized_keys:
+              - "ssh-ed25519 AAAA... admin@workstation"
+        base_timezone: "America/New_York"
+        base_locale: "en_US.UTF-8"
+      roles:
+        - scbitworx.base
 
 ## License
 

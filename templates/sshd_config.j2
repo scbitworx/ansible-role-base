@@ -10,6 +10,20 @@ ListenAddress ::
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_ed25519_key
 
+# Algorithm hardening
+{% if base_sshd_ciphers %}
+Ciphers {{ base_sshd_ciphers | join(',') }}
+{% endif %}
+{% if base_sshd_macs %}
+MACs {{ base_sshd_macs | join(',') }}
+{% endif %}
+{% if base_sshd_kex_algorithms %}
+KexAlgorithms {{ base_sshd_kex_algorithms | join(',') }}
+{% endif %}
+{% if base_sshd_host_key_algorithms %}
+HostKeyAlgorithms {{ base_sshd_host_key_algorithms | join(',') }}
+{% endif %}
+
 # Authentication
 PermitRootLogin {{ base_sshd_permit_root_login }}
 PubkeyAuthentication {{ base_sshd_pubkey_authentication }}
@@ -23,6 +37,10 @@ LoginGraceTime {{ base_sshd_login_grace_time }}
 ClientAliveInterval {{ base_sshd_client_alive_interval }}
 ClientAliveCountMax {{ base_sshd_client_alive_count_max }}
 MaxSessions {{ base_sshd_max_sessions }}
+{% if base_sshd_allow_groups %}
+
+AllowGroups {{ base_sshd_allow_groups | join(' ') }}
+{% endif %}
 
 X11Forwarding {{ base_sshd_x11_forwarding }}
 PrintMotd no

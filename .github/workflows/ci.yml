@@ -22,7 +22,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install ansible-core ansible-lint yamllint
+        run: pip install 'ansible-core>=2.17,<2.18' 'ansible-lint>=25,<26' 'yamllint>=1,<2'
 
       - name: Install Ansible collections
         run: ansible-galaxy collection install community.general ansible.posix
@@ -48,10 +48,15 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install ansible-core molecule molecule-plugins[docker] pytest-testinfra
+        run: >-
+          pip install 'ansible-core>=2.17,<2.18' 'molecule>=25,<26'
+          'molecule-plugins[docker]>=25,<26' 'pytest-testinfra>=10,<11'
 
       - name: Install Ansible collections
         run: ansible-galaxy collection install community.general ansible.posix community.docker
 
-      - name: Run Molecule tests
+      - name: Run Molecule tests (default)
         run: molecule test
+
+      - name: Run Molecule tests (alternate)
+        run: molecule test -s alternate

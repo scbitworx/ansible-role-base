@@ -1,0 +1,16 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    base_pull_timer_enabled: false
+    base_editor: "nano"
+    base_histsize: 5000
+    base_extra_packages:
+      - tree
+    base_admin_users:
+      - name: altuser1
+        authorized_keys:
+          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAltKey1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA alt-key-1"
+  roles:
+    - role: scbitworx.base

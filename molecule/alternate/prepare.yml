@@ -1,0 +1,27 @@
+---
+- name: Prepare Arch Linux container
+  hosts: archlinux
+  gather_facts: false
+  tasks:
+    - name: Install Python, sudo, and openssh (Arch)
+      ansible.builtin.raw: pacman -Syu --noconfirm python sudo openssh
+
+    - name: Generate SSH host keys (Arch)
+      ansible.builtin.raw: ssh-keygen -A
+
+    - name: Start sshd (Arch)
+      ansible.builtin.raw: systemctl start sshd
+
+- name: Prepare all containers
+  hosts: all
+  become: true
+  tasks:
+    - name: Create dummy ansible-pull-wrapper for testing
+      ansible.builtin.copy:
+        dest: /usr/local/bin/ansible-pull-wrapper
+        content: |
+          #!/bin/bash
+          exit 0
+        owner: root
+        group: root
+        mode: "0755"

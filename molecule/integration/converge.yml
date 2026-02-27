@@ -2,16 +2,7 @@
 - name: Converge
   hosts: all
   become: true
-  vars:
-    base_admin_users:
-      - name: testuser1
-        authorized_keys:
-          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestKey1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA test-key-1"
-          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestKey2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA test-key-2"
-        # yamllint disable-line rule:line-length
-        password_hash: "$6$rounds=500000$testsalt$NO3P9t6/YrM6NwXiuS0tAWHKesPRjzrLeq8XrjP04D3h1eHC1CKZymdYTr1jlf7Ndgalb/v0oLFrv9QF6AWai1"
-      - name: testuser2
-        authorized_keys:
-          - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAITestKey3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA test-key-3"
+  vars_files:
+    - ../shared_vars.yml
   roles:
     - role: scbitworx.base

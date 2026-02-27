@@ -27,10 +27,14 @@ def test_sudoers_dropin_exists(host, test_user):
     assert oct(f.mode) == "0o440"
 
 
-def test_sudoers_dropin_nopasswd(host, test_user):
-    """Sudoers drop-in must contain NOPASSWD."""
+def test_sudoers_dropin_content(host, test_user):
+    """Sudoers drop-in must match the sudo_passwordless setting."""
     f = host.file("/etc/sudoers.d/%s" % test_user["name"])
-    assert f.contains("NOPASSWD")
+    if test_user["sudo_passwordless"]:
+        assert f.contains("NOPASSWD")
+    else:
+        assert not f.contains("NOPASSWD")
+        assert f.contains("%s ALL=" % test_user["name"])
 
 
 def test_authorized_keys_file(host, test_user):
