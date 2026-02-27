@@ -13,3 +13,12 @@
     state: present
   become: true
   when: ansible_facts['os_family'] == "Debian"
+
+- name: Set system locale
+  ansible.builtin.copy:
+    content: "LANG={{ base_locale }}\n"
+    dest: /etc/locale.conf
+    owner: root
+    group: root
+    mode: "0644"
+  become: true

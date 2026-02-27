@@ -65,6 +65,9 @@ The base role enforces a security-first configuration on all hosts:
 | `base_sshd_max_sessions` | `3` | Max multiplexed sessions |
 | `base_editor` | `vim` | Default EDITOR/VISUAL |
 | `base_histsize` | `10000` | Bash HISTSIZE |
+| `base_pull_timer_enabled` | `true` | Enable ansible-pull systemd timer |
+| `base_pull_interval` | `4h` | ansible-pull timer interval |
+| `base_unattended_upgrades` | `true` | Enable unattended security upgrades (Debian/Ubuntu only) |
 
 ### Per-User Properties
 
@@ -119,7 +122,7 @@ This role requires the following Ansible collections:
 Install them with:
 
 ```bash
-ansible-galaxy collection install -r meta/requirements.yml
+ansible-galaxy collection install -r collections.yml
 ```
 
 ## Testing

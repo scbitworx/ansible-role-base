@@ -8,4 +8,4 @@
     mode: "0600"
     validate: sshd -t -f %s
   become: true
-  notify: Base | restart sshd
+  notify: Base | reload sshd

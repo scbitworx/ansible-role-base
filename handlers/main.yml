@@ -1,8 +1,8 @@
 ---
-- name: Base | restart sshd
+- name: Base | reload sshd
   ansible.builtin.service:
     name: "{{ __base_sshd_service }}"
-    state: restarted
+    state: reloaded
   become: true
 
 - name: Base | reload systemd

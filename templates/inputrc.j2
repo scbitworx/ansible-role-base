@@ -1,6 +1,9 @@
 # {{ ansible_managed }}
 # ~/.config/readline/inputrc — managed by ansible-role-base
 
+# Inherit system defaults
+$include /etc/inputrc
+
 # Case-insensitive tab completion
 set completion-ignore-case on
 
