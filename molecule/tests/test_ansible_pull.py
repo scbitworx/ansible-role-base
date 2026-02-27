@@ -24,12 +24,26 @@ def test_ansible_pull_service_content(host):
     assert f.contains("Type=oneshot")
 
 
+def test_ansible_pull_service_network_deps(host):
+    """Service unit must wait for network to be online."""
+    f = host.file("/etc/systemd/system/ansible-pull.service")
+    assert f.contains("After=network-online.target")
+    assert f.contains("Wants=network-online.target")
+
+
 def test_ansible_pull_timer_content(host):
     """Timer unit must contain expected interval and persistence settings."""
     f = host.file("/etc/systemd/system/ansible-pull.timer")
     assert f.contains("OnUnitActiveSec=4h")
     assert f.contains("Persistent=true")
     assert f.contains("timers.target")
+
+
+def test_ansible_pull_timer_boot_delay(host):
+    """Timer unit must have a boot delay and randomized offset."""
+    f = host.file("/etc/systemd/system/ansible-pull.timer")
+    assert f.contains("OnBootSec=5min")
+    assert f.contains("RandomizedDelaySec=5min")
 
 
 def test_ansible_pull_timer_enabled(host):

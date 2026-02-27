@@ -55,7 +55,7 @@ jobs:
           'molecule-plugins[docker]>=25,<26' 'pytest-testinfra>=10,<11'
 
       - name: Install Ansible collections
-        run: ansible-galaxy collection install community.general ansible.posix community.docker
+        run: ansible-galaxy collection install community.general ansible.posix
 
       - name: Run Molecule tests (default)
         run: molecule test

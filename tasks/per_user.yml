@@ -26,6 +26,15 @@
     validate: visudo -cf %s
   become: true
 
+- name: Create .ssh directory for {{ __base_admin_user.name }}
+  ansible.builtin.file:
+    path: "{{ __base_admin_user_home }}/.ssh"
+    state: directory
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
+    mode: "0700"
+  become: true
+
 - name: Deploy authorized keys for {{ __base_admin_user.name }}
   ansible.posix.authorized_key:
     user: "{{ __base_admin_user.name }}"

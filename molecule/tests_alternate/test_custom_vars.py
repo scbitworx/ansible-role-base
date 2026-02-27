@@ -5,8 +5,8 @@ def test_editor_is_nano(host):
     """bashrc must export EDITOR=nano."""
     u = host.user("altuser1")
     f = host.file("%s/.config/bash/bashrc" % u.home)
-    assert f.contains('export EDITOR="nano"')
-    assert f.contains('export VISUAL="nano"')
+    assert f.contains("export EDITOR='nano'")
+    assert f.contains("export VISUAL='nano'")
 
 
 def test_histsize_is_5000(host):

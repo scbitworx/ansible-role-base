@@ -149,19 +149,26 @@ def test_bashrc_confd_sourcing(host, test_user):
 
 
 def test_bashrc_editor_visual(host, test_user):
-    """bashrc must export EDITOR and VISUAL."""
+    """bashrc must export EDITOR and VISUAL with default value 'vim'."""
     u = host.user(test_user["name"])
     f = host.file("%s/.config/bash/bashrc" % u.home)
-    assert f.contains("export EDITOR=")
-    assert f.contains("export VISUAL=")
+    assert f.contains("export EDITOR='vim'")
+    assert f.contains("export VISUAL='vim'")
 
 
 def test_bashrc_histsize(host, test_user):
-    """bashrc must export HISTSIZE and HISTFILESIZE."""
+    """bashrc must export HISTSIZE and HISTFILESIZE with default value 10000."""
     u = host.user(test_user["name"])
     f = host.file("%s/.config/bash/bashrc" % u.home)
-    assert f.contains("export HISTSIZE=")
-    assert f.contains("export HISTFILESIZE=")
+    assert f.contains("export HISTSIZE=10000")
+    assert f.contains("export HISTFILESIZE=10000")
+
+
+def test_bashrc_histcontrol(host, test_user):
+    """bashrc must export HISTCONTROL=ignoreboth:erasedups."""
+    u = host.user(test_user["name"])
+    f = host.file("%s/.config/bash/bashrc" % u.home)
+    assert f.contains("export HISTCONTROL=ignoreboth:erasedups")
 
 
 def test_bashrc_xdg_dirs(host, test_user):
@@ -179,6 +186,30 @@ def test_bash_profile_sources_profile(host, test_user):
     u = host.user(test_user["name"])
     f = host.file("%s/.config/bash/bash_profile" % u.home)
     assert f.contains(r"\. ~/\.profile")
+
+
+@pytest.mark.parametrize(
+    "setting",
+    [
+        "set completion-ignore-case on",
+        "set show-all-if-ambiguous on",
+        "set mark-directories on",
+        "set colored-stats on",
+        "set completion-map-case on",
+    ],
+)
+def test_inputrc_setting(host, test_user, setting):
+    """inputrc must contain expected readline settings."""
+    u = host.user(test_user["name"])
+    f = host.file("%s/.config/readline/inputrc" % u.home)
+    assert f.contains(setting)
+
+
+def test_inputrc_inherits_system(host, test_user):
+    """inputrc must include system defaults."""
+    u = host.user(test_user["name"])
+    f = host.file("%s/.config/readline/inputrc" % u.home)
+    assert f.contains(r"\$include /etc/inputrc")
 
 
 @pytest.mark.parametrize(

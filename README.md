@@ -146,7 +146,7 @@ python -m venv ~/.virtualenvs/molecule
 source ~/.virtualenvs/molecule/bin/activate
 pip install ansible-core ansible-lint yamllint \
   molecule 'molecule-plugins[docker,vagrant]' pytest-testinfra
-ansible-galaxy collection install community.general ansible.posix community.docker
+ansible-galaxy collection install community.general ansible.posix
 ```
 
 ### Lint (fast — run before every commit)
