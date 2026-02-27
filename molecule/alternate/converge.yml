@@ -4,12 +4,16 @@
   become: true
   vars:
     base_pull_timer_enabled: false
+    base_pull_interval: "8h"
     base_editor: "nano"
     base_histsize: 5000
+    base_timezone: "UTC"
+    base_locale: "C.UTF-8"
     base_extra_packages:
       - tree
     base_sshd_allow_groups:
       - wheel
+    base_sshd_banner: "/etc/issue"
     base_admin_users:
       - name: altuser1
         authorized_keys:

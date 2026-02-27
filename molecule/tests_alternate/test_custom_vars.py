@@ -40,3 +40,22 @@ def test_sshd_allow_groups(host):
     """sshd_config must contain AllowGroups directive when set."""
     f = host.file("/etc/ssh/sshd_config")
     assert f.contains("AllowGroups wheel")
+
+
+def test_sshd_banner(host):
+    """sshd_config must contain Banner directive when set."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert f.contains("Banner /etc/issue")
+
+
+def test_timezone_override(host):
+    """Timezone must reflect the overridden value (UTC)."""
+    result = host.run("timedatectl show --property=Timezone --value")
+    assert result.stdout.strip() == "UTC"
+
+
+def test_locale_override(host):
+    """/etc/locale.conf must reflect the overridden locale."""
+    f = host.file("/etc/locale.conf")
+    assert f.exists
+    assert f.contains("LANG=C.UTF-8")

@@ -15,6 +15,16 @@ def test_user_shell(host, test_user):
     assert u.shell == "/bin/bash"
 
 
+def test_home_directory(host, test_user):
+    """Home directory must exist, be owned by the user."""
+    u = host.user(test_user["name"])
+    f = host.file(u.home)
+    assert f.exists
+    assert f.is_directory
+    assert f.user == test_user["name"]
+    assert f.group == test_user["name"]
+
+
 def test_user_private_group(host, test_user):
     """User's primary group must match username (UPG convention)."""
     u = host.user(test_user["name"])

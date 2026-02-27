@@ -38,7 +38,7 @@ def test_ansible_pull_timer_enabled(host):
     assert result.stdout.strip() == "enabled"
 
 
-@pytest.mark.vm_only
+@pytest.mark.vm_only  # systemd timers don't run reliably in Docker containers
 def test_ansible_pull_timer_running(host):
     """ansible-pull.timer must be actively running (VM only)."""
     svc = host.service("ansible-pull.timer")

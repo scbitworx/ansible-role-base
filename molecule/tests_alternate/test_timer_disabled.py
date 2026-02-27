@@ -19,3 +19,9 @@ def test_ansible_pull_timer_not_enabled(host):
     """Timer must not be enabled when base_pull_timer_enabled=false."""
     svc = host.service("ansible-pull.timer")
     assert not svc.is_enabled
+
+
+def test_ansible_pull_timer_interval_override(host):
+    """Timer unit must reflect the overridden interval (8h)."""
+    f = host.file("/etc/systemd/system/ansible-pull.timer")
+    assert f.contains("OnUnitActiveSec=8h")

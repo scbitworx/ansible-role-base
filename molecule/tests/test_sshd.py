@@ -97,7 +97,7 @@ def test_sshd_no_weak_algorithm(host, weak):
     assert not f.contains(weak)
 
 
-@pytest.mark.vm_only
+@pytest.mark.vm_only  # Docker containers share the host kernel's sshd
 def test_sshd_service_running(host):
     """sshd service must be running and enabled (VM only)."""
     svc_name = "sshd"
