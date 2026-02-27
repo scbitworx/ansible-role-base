@@ -24,6 +24,9 @@ def test_sshd_config_exists(host):
         "ClientAliveInterval 300",
         "ClientAliveCountMax 2",
         "MaxSessions 3",
+        "X11Forwarding no",
+        "PrintMotd no",
+        "UsePAM yes",
     ],
 )
 def test_sshd_hardened_setting(host, setting):
@@ -49,6 +52,49 @@ def test_sshd_algorithm_directive(host, directive):
     """Algorithm hardening directives must be present in sshd_config."""
     f = host.file("/etc/ssh/sshd_config")
     assert f.contains(directive)
+
+
+@pytest.mark.parametrize(
+    "host_key",
+    [
+        "HostKey /etc/ssh/ssh_host_rsa_key",
+        "HostKey /etc/ssh/ssh_host_ed25519_key",
+    ],
+)
+def test_sshd_host_key_directive(host, host_key):
+    """Host key directives must be present in sshd_config."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert f.contains(host_key)
+
+
+def test_sshd_sftp_subsystem(host):
+    """Subsystem sftp must use the distro-correct path."""
+    f = host.file("/etc/ssh/sshd_config")
+    if host.system_info.distribution in ("arch", "archlinux"):
+        assert f.contains("Subsystem sftp /usr/lib/ssh/sftp-server")
+    else:
+        assert f.contains("Subsystem sftp /usr/lib/openssh/sftp-server")
+
+
+@pytest.mark.parametrize(
+    "weak",
+    [
+        "aes128-cbc",
+        "aes256-cbc",
+        "3des-cbc",
+        "arcfour",
+        "hmac-sha1 ",
+        "hmac-md5",
+        "diffie-hellman-group1-sha1",
+        "diffie-hellman-group14-sha1",
+        "ssh-dss",
+        "ecdsa-sha2",
+    ],
+)
+def test_sshd_no_weak_algorithm(host, weak):
+    """Weak algorithms must NOT be present in sshd_config."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert not f.contains(weak)
 
 
 @pytest.mark.vm_only

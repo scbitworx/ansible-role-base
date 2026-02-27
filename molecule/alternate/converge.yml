@@ -8,6 +8,8 @@
     base_histsize: 5000
     base_extra_packages:
       - tree
+    base_sshd_allow_groups:
+      - wheel
     base_admin_users:
       - name: altuser1
         authorized_keys:

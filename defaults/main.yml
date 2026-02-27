@@ -2,12 +2,10 @@
 # Public variables for the base role.
 # Override these in group_vars or host_vars as needed.
 
-# Additional packages beyond the base set
+# Package management
 base_extra_packages: []
 
-# Administrative user accounts to create and configure.
-# Each entry supports: name (required), groups, shell, create_home,
-# authorized_keys, sudo_passwordless, password_hash.
+# User management
 base_admin_users: []
 
 # Per-user defaults (override per entry):
@@ -34,6 +32,7 @@ base_sshd_client_alive_interval: 300
 base_sshd_client_alive_count_max: 2
 base_sshd_max_sessions: 3
 base_sshd_allow_groups: []
+base_sshd_banner: ""
 
 # SSH algorithm hardening (OpenSSH 8.0+ / dev-sec baseline)
 base_sshd_ciphers:

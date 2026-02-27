@@ -44,6 +44,9 @@ AllowGroups {{ base_sshd_allow_groups | join(' ') }}
 
 X11Forwarding {{ base_sshd_x11_forwarding }}
 PrintMotd no
+{% if base_sshd_banner %}
+Banner {{ base_sshd_banner }}
+{% endif %}
 AcceptEnv LANG LC_*
 
 Subsystem sftp {{ __base_sftp_server_path }}

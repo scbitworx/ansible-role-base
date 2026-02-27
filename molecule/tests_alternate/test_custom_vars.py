@@ -34,3 +34,9 @@ def test_altuser1_authorized_keys(host):
     f = host.file("%s/.ssh/authorized_keys" % u.home)
     assert f.exists
     assert f.contains("alt-key-1")
+
+
+def test_sshd_allow_groups(host):
+    """sshd_config must contain AllowGroups directive when set."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert f.contains("AllowGroups wheel")

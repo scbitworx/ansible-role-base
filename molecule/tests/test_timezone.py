@@ -1,9 +1,12 @@
 """Verify timezone and locale configuration."""
 
 
-def test_localtime_exists(host):
-    """/etc/localtime must exist."""
-    assert host.file("/etc/localtime").exists
+def test_localtime_is_symlink(host):
+    """/etc/localtime must be a symlink to the correct timezone."""
+    f = host.file("/etc/localtime")
+    assert f.exists
+    assert f.is_symlink
+    assert f.linked_to == "/usr/share/zoneinfo/America/New_York"
 
 
 def test_locale_conf(host):

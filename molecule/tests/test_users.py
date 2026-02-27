@@ -1,10 +1,18 @@
 """Verify per-user configuration (parameterized via test_user fixture)."""
 
+import pytest
+
 
 def test_user_exists(host, test_user):
     """User account must exist."""
     u = host.user(test_user["name"])
     assert u.exists
+
+
+def test_user_shell(host, test_user):
+    """User must have the correct login shell."""
+    u = host.user(test_user["name"])
+    assert u.shell == "/bin/bash"
 
 
 def test_user_private_group(host, test_user):
@@ -37,13 +45,26 @@ def test_sudoers_dropin_content(host, test_user):
         assert f.contains("%s ALL=" % test_user["name"])
 
 
+def test_ssh_directory(host, test_user):
+    """~/.ssh must exist with mode 0700, owned by the user."""
+    u = host.user(test_user["name"])
+    f = host.file("%s/.ssh" % u.home)
+    assert f.exists
+    assert f.is_directory
+    assert oct(f.mode) == "0o700"
+    assert f.user == test_user["name"]
+    assert f.group == test_user["name"]
+
+
 def test_authorized_keys_file(host, test_user):
-    """authorized_keys must exist with mode 0600."""
+    """authorized_keys must exist with mode 0600, owned by the user."""
     u = host.user(test_user["name"])
     f = host.file("%s/.ssh/authorized_keys" % u.home)
     assert f.exists
     assert f.is_file
     assert oct(f.mode) == "0o600"
+    assert f.user == test_user["name"]
+    assert f.group == test_user["name"]
 
 
 def test_authorized_keys_content(host, test_user):
@@ -54,12 +75,50 @@ def test_authorized_keys_content(host, test_user):
         assert f.contains(key)
 
 
-def test_profile_exists(host, test_user):
-    """~/.config/profile must exist."""
+def test_authorized_keys_exclusive(host, test_user):
+    """authorized_keys must not contain keys outside the expected set."""
     u = host.user(test_user["name"])
-    f = host.file("%s/.config/profile" % u.home)
+    result = host.run("wc -l < %s/.ssh/authorized_keys" % u.home)
+    line_count = int(result.stdout.strip())
+    assert line_count == len(test_user["expected_keys"])
+
+
+@pytest.mark.parametrize(
+    "subpath",
+    [
+        ".config/profile.d",
+        ".config/bash",
+        ".config/bash/conf.d",
+        ".config/readline",
+    ],
+)
+def test_config_directory(host, test_user, subpath):
+    """XDG config subdirectories must exist, owned by the user."""
+    u = host.user(test_user["name"])
+    f = host.file("%s/%s" % (u.home, subpath))
+    assert f.exists
+    assert f.is_directory
+    assert f.user == test_user["name"]
+    assert f.group == test_user["name"]
+
+
+@pytest.mark.parametrize(
+    "subpath",
+    [
+        ".config/profile",
+        ".config/bash/bashrc",
+        ".config/bash/bash_profile",
+        ".config/readline/inputrc",
+    ],
+)
+def test_config_file_ownership(host, test_user, subpath):
+    """Shell config files must exist as regular files, owned by the user."""
+    u = host.user(test_user["name"])
+    f = host.file("%s/%s" % (u.home, subpath))
     assert f.exists
     assert f.is_file
+    assert f.user == test_user["name"]
+    assert f.group == test_user["name"]
 
 
 def test_profile_content(host, test_user):
@@ -70,46 +129,6 @@ def test_profile_content(host, test_user):
     assert f.contains("bashrc")
     assert f.contains("profile.d")
     assert f.contains(r"\*\.conf")
-
-
-def test_profiled_directory(host, test_user):
-    """~/.config/profile.d/ must exist."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.config/profile.d" % u.home)
-    assert f.exists
-    assert f.is_directory
-
-
-def test_bash_config_directory(host, test_user):
-    """~/.config/bash/ must exist."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.config/bash" % u.home)
-    assert f.exists
-    assert f.is_directory
-
-
-def test_bash_confd_directory(host, test_user):
-    """~/.config/bash/conf.d/ must exist."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.config/bash/conf.d" % u.home)
-    assert f.exists
-    assert f.is_directory
-
-
-def test_readline_config_directory(host, test_user):
-    """~/.config/readline/ must exist."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.config/readline" % u.home)
-    assert f.exists
-    assert f.is_directory
-
-
-def test_bashrc_exists(host, test_user):
-    """~/.config/bash/bashrc must exist."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.config/bash/bashrc" % u.home)
-    assert f.exists
-    assert f.is_file
 
 
 def test_bashrc_confd_sourcing(host, test_user):
@@ -145,14 +164,6 @@ def test_bashrc_xdg_dirs(host, test_user):
     assert f.contains("export XDG_CACHE_HOME=")
 
 
-def test_bash_profile_exists(host, test_user):
-    """~/.config/bash/bash_profile must exist."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.config/bash/bash_profile" % u.home)
-    assert f.exists
-    assert f.is_file
-
-
 def test_bash_profile_sources_profile(host, test_user):
     """bash_profile must source ~/.profile."""
     u = host.user(test_user["name"])
@@ -160,44 +171,21 @@ def test_bash_profile_sources_profile(host, test_user):
     assert f.contains(r"\. ~/\.profile")
 
 
-def test_inputrc_exists(host, test_user):
-    """~/.config/readline/inputrc must exist."""
+@pytest.mark.parametrize(
+    ("link_name", "target"),
+    [
+        (".bash_profile", ".config/bash/bash_profile"),
+        (".bashrc", ".config/bash/bashrc"),
+        (".profile", ".config/profile"),
+        (".inputrc", ".config/readline/inputrc"),
+    ],
+)
+def test_home_symlink(host, test_user, link_name, target):
+    """Home directory symlinks must point to XDG config locations."""
     u = host.user(test_user["name"])
-    f = host.file("%s/.config/readline/inputrc" % u.home)
-    assert f.exists
-    assert f.is_file
-
-
-def test_symlink_bash_profile(host, test_user):
-    """~/.bash_profile must be a symlink to .config/bash/bash_profile."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.bash_profile" % u.home)
+    f = host.file("%s/%s" % (u.home, link_name))
     assert f.is_symlink
-    assert f.linked_to == "%s/.config/bash/bash_profile" % u.home
-
-
-def test_symlink_bashrc(host, test_user):
-    """~/.bashrc must be a symlink to .config/bash/bashrc."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.bashrc" % u.home)
-    assert f.is_symlink
-    assert f.linked_to == "%s/.config/bash/bashrc" % u.home
-
-
-def test_symlink_profile(host, test_user):
-    """~/.profile must be a symlink to .config/profile."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.profile" % u.home)
-    assert f.is_symlink
-    assert f.linked_to == "%s/.config/profile" % u.home
-
-
-def test_symlink_inputrc(host, test_user):
-    """~/.inputrc must be a symlink to .config/readline/inputrc."""
-    u = host.user(test_user["name"])
-    f = host.file("%s/.inputrc" % u.home)
-    assert f.is_symlink
-    assert f.linked_to == "%s/.config/readline/inputrc" % u.home
+    assert f.linked_to == "%s/%s" % (u.home, target)
 
 
 def test_password_hash_set(host, test_user):
