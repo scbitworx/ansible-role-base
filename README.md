@@ -7,7 +7,7 @@ configuration that every machine needs.
 
 - Installs essential packages (distro-aware: `base-devel` on Arch,
   `build-essential` on Debian/Ubuntu)
-- Creates user accounts with distro-appropriate sudo group
+- Creates user accounts with distro-appropriate `sudo` group
 - Deploys sudoers drop-ins for passwordless sudo (configurable per user)
 - Manages `~/.ssh/authorized_keys` for key-only authentication (per user)
 - Sets timezone and locale
@@ -27,8 +27,8 @@ configuration that every machine needs.
 The base role enforces a security-first configuration on all hosts:
 
 - **Hardened sshd**: Root login disabled, password auth disabled, brute-force
-  limits (MaxAuthTries, LoginGraceTime), idle session cleanup
-  (ClientAliveInterval/CountMax), session multiplexing limits (MaxSessions)
+  limits (`MaxAuthTries`, `LoginGraceTime`), idle session cleanup
+  (`ClientAliveInterval`/`CountMax`), session multiplexing limits (`MaxSessions`)
 - **Key-only authentication**: PubkeyAuthentication enabled, passwords and
   keyboard-interactive auth disabled
 - **Authorized keys deployment**: Public keys are deployed per user to
@@ -69,11 +69,11 @@ The base role enforces a security-first configuration on all hosts:
 | `base_sshd_macs` | (see defaults) | Allowed SSH MACs |
 | `base_sshd_kex_algorithms` | (see defaults) | Allowed SSH key exchange algorithms |
 | `base_sshd_host_key_algorithms` | (see defaults) | Allowed SSH host key algorithms |
-| `base_editor` | `vim` | Default EDITOR/VISUAL |
-| `base_histsize` | `10000` | Bash HISTSIZE |
-| `base_pull_timer_enabled` | `true` | Enable ansible-pull systemd timer |
-| `base_pull_interval` | `4h` | ansible-pull timer interval |
-| `base_unattended_upgrades` | `true` | Enable unattended security upgrades (Debian/Ubuntu only) |
+| `base_editor` | `vim` | Default `EDITOR`/`VISUAL` |
+| `base_histsize` | `10000` | Bash `HISTSIZE` |
+| `base_pull_timer_enabled` | `true` | Enable `ansible-pull` systemd timer |
+| `base_pull_interval` | `4h` | `ansible-pull` timer interval |
+| `base_unattended_upgrades` | `true` | Enable `unattended-upgrades` (Debian/Ubuntu only) |
 
 ### Per-User Properties
 
@@ -108,8 +108,8 @@ The role deploys an XDG-compliant shell configuration per user:
 ```
 
 The login profile at `~/.config/profile` sets up `~/.local/bin` PATH and
-sources bashrc, then sources all `*.conf` files from `~/.config/profile.d/`.
-Higher-order roles (server, workstation) can extend or override the login
+sources `bashrc`, then sources all `*.conf` files from `~/.config/profile.d/`.
+Higher-order roles (`server`, `workstation`) can extend or override the login
 profile by dropping files into `profile.d/`.
 
 Symlinks are created for compatibility:
@@ -149,7 +149,7 @@ pip install ansible-core ansible-lint yamllint \
 ansible-galaxy collection install community.general ansible.posix
 ```
 
-### Lint (fast — run before every commit)
+### Lint (Fast — Run Before Every Commit)
 
 ```bash
 source ~/.virtualenvs/molecule/bin/activate
@@ -157,7 +157,7 @@ yamllint .
 ansible-lint
 ```
 
-### Molecule — Docker (default scenario)
+### Molecule — Docker (Default Scenario)
 
 Runs all three platforms (Arch, Ubuntu, Debian) in Docker containers.
 Requires Docker running.
@@ -173,7 +173,7 @@ molecule verify
 molecule destroy
 ```
 
-### Molecule — Docker (alternate scenario)
+### Molecule — Docker (Alternate Scenario)
 
 Runs Arch Linux only with non-default variable values to verify that
 overrides work correctly (editor, histsize, timezone, locale, sshd
@@ -184,7 +184,7 @@ source ~/.virtualenvs/molecule/bin/activate
 molecule test -s alternate
 ```
 
-### Molecule — Vagrant (integration scenario)
+### Molecule — Vagrant (Integration Scenario)
 
 Runs a full VM via Vagrant + libvirt for tests that require a real kernel
 and init system. Currently Arch Linux only.
@@ -193,7 +193,7 @@ and init system. Currently Arch Linux only.
 
 - `vagrant`
 - `vagrant-libvirt` plugin: `vagrant plugin install vagrant-libvirt`
-- libvirt/qemu running: `systemctl start libvirtd`
+- `libvirt`/`qemu` running: `systemctl start libvirtd`
 
 A wrapper script handles venv activation and the `ANSIBLE_LIBRARY`
 workaround for a [molecule 25.2.0+ regression](https://github.com/ansible-community/molecule-plugins/issues/301):
