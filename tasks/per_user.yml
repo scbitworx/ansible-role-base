@@ -44,6 +44,16 @@
   become: true
   when: (__base_admin_user.authorized_keys | default([])) | length > 0
 
+- name: Remove authorized keys for {{ __base_admin_user.name }}
+  ansible.builtin.copy:
+    dest: "{{ __base_admin_user_home }}/.ssh/authorized_keys"
+    content: ""
+    owner: "{{ __base_admin_user.name }}"
+    group: "{{ __base_admin_user.name }}"
+    mode: "0600"
+  become: true
+  when: (__base_admin_user.authorized_keys | default([])) | length == 0
+
 - name: Create XDG config directory for {{ __base_admin_user.name }}
   ansible.builtin.file:
     path: "{{ __base_admin_user_home }}/.config"
