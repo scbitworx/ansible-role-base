@@ -47,47 +47,47 @@ The base role enforces a security-first configuration on all hosts:
 
 ## Role Variables
 
-| Variable | Default | Description |
-|---|---|---|
-| `base_admin_users` | `[]` | List of administrative user accounts to create |
-| `base_extra_packages` | `[]` | Additional packages beyond the base set |
-| `base_timezone` | `America/New_York` | System timezone |
-| `base_locale` | `en_US.UTF-8` | System locale |
-| `base_sshd_port` | `22` | SSH port |
-| `base_sshd_permit_root_login` | `no` | Root SSH login |
-| `base_sshd_password_authentication` | `no` | Password auth |
-| `base_sshd_pubkey_authentication` | `yes` | Pubkey auth |
-| `base_sshd_x11_forwarding` | `no` | X11 forwarding |
-| `base_sshd_max_auth_tries` | `3` | Max authentication attempts |
-| `base_sshd_login_grace_time` | `30` | Login grace period (seconds) |
-| `base_sshd_client_alive_interval` | `300` | Client alive check interval (seconds) |
-| `base_sshd_client_alive_count_max` | `2` | Max missed client alive checks |
-| `base_sshd_max_sessions` | `3` | Max multiplexed sessions |
-| `base_sshd_allow_groups` | `[]` | Restrict SSH to listed groups (empty = no restriction) |
-| `base_sshd_banner` | `""` | Path to SSH banner file (empty = no banner) |
-| `base_sshd_ciphers` | (see defaults) | Allowed SSH ciphers |
-| `base_sshd_macs` | (see defaults) | Allowed SSH MACs |
-| `base_sshd_kex_algorithms` | (see defaults) | Allowed SSH key exchange algorithms |
-| `base_sshd_host_key_algorithms` | (see defaults) | Allowed SSH host key algorithms |
-| `base_editor` | `vim` | Default `EDITOR`/`VISUAL` |
-| `base_histsize` | `10000` | Bash `HISTSIZE` |
-| `base_pull_timer_enabled` | `true` | Enable `ansible-pull` systemd timer |
-| `base_pull_interval` | `4h` | `ansible-pull` timer interval |
-| `base_unattended_upgrades` | `true` | Enable `unattended-upgrades` (Debian/Ubuntu only) |
+| Variable                            | Default            | Description                                            |
+| ----------------------------------- | ------------------ | ------------------------------------------------------ |
+| `base_admin_users`                  | `[]`               | List of administrative user accounts to create         |
+| `base_extra_packages`               | `[]`               | Additional packages beyond the base set                |
+| `base_timezone`                     | `America/New_York` | System timezone                                        |
+| `base_locale`                       | `en_US.UTF-8`      | System locale                                          |
+| `base_sshd_port`                    | `22`               | SSH port                                               |
+| `base_sshd_permit_root_login`       | `no`               | Root SSH login                                         |
+| `base_sshd_password_authentication` | `no`               | Password auth                                          |
+| `base_sshd_pubkey_authentication`   | `yes`              | Pubkey auth                                            |
+| `base_sshd_x11_forwarding`          | `no`               | X11 forwarding                                         |
+| `base_sshd_max_auth_tries`          | `3`                | Max authentication attempts                            |
+| `base_sshd_login_grace_time`        | `30`               | Login grace period (seconds)                           |
+| `base_sshd_client_alive_interval`   | `300`              | Client alive check interval (seconds)                  |
+| `base_sshd_client_alive_count_max`  | `2`                | Max missed client alive checks                         |
+| `base_sshd_max_sessions`            | `3`                | Max multiplexed sessions                               |
+| `base_sshd_allow_groups`            | `[]`               | Restrict SSH to listed groups (empty = no restriction) |
+| `base_sshd_banner`                  | `""`               | Path to SSH banner file (empty = no banner)            |
+| `base_sshd_ciphers`                 | (see defaults)     | Allowed SSH ciphers                                    |
+| `base_sshd_macs`                    | (see defaults)     | Allowed SSH MACs                                       |
+| `base_sshd_kex_algorithms`          | (see defaults)     | Allowed SSH key exchange algorithms                    |
+| `base_sshd_host_key_algorithms`     | (see defaults)     | Allowed SSH host key algorithms                        |
+| `base_editor`                       | `vim`              | Default `EDITOR`/`VISUAL`                              |
+| `base_histsize`                     | `10000`            | Bash `HISTSIZE`                                        |
+| `base_pull_timer_enabled`           | `true`             | Enable `ansible-pull` systemd timer                    |
+| `base_pull_interval`                | `4h`               | `ansible-pull` timer interval                          |
+| `base_unattended_upgrades`          | `true`             | Enable `unattended-upgrades` (Debian/Ubuntu only)      |
 
 ### Per-User Properties
 
 Each entry in `base_admin_users` supports:
 
-| Property | Default | Description |
-|---|---|---|
-| `name` | (required) | Username |
-| `groups` | `[]` | Additional groups (admin group is added automatically) |
-| `shell` | `/bin/bash` | Login shell |
-| `create_home` | `true` | Create home directory |
-| `authorized_keys` | `[]` | List of SSH public key strings |
-| `sudo_passwordless` | `true` | Grant passwordless sudo |
-| `password_hash` | (omitted) | Pre-hashed password for `/etc/shadow` |
+| Property            | Default     | Description                                            |
+| ------------------- | ----------- | ------------------------------------------------------ |
+| `name`              | (required)  | Username                                               |
+| `groups`            | `[]`        | Additional groups (admin group is added automatically) |
+| `shell`             | `/bin/bash` | Login shell                                            |
+| `create_home`       | `true`      | Create home directory                                  |
+| `authorized_keys`   | `[]`        | List of SSH public key strings                         |
+| `sudo_passwordless` | `true`      | Grant passwordless sudo                                |
+| `password_hash`     | (omitted)   | Pre-hashed password for `/etc/shadow`                  |
 
 ## Shell Skeleton
 
