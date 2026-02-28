@@ -93,7 +93,7 @@ Each entry in `base_admin_users` supports:
 
 The role deploys an XDG-compliant shell configuration per user:
 
-```
+```text
 ~/.config/
   profile        # PATH, bashrc source, then profile.d/ sourcing loop
   profile.d/     # drop-in directory for higher-order roles
@@ -113,6 +113,7 @@ Higher-order roles (`server`, `workstation`) can extend or override the login
 profile by dropping files into `profile.d/`.
 
 Symlinks are created for compatibility:
+
 - `~/.bash_profile` -> `.config/bash/bash_profile`
 - `~/.bashrc` -> `.config/bash/bashrc`
 - `~/.profile` -> `.config/profile`
@@ -216,17 +217,19 @@ and are automatically skipped in Docker.
 
 ## Example Playbook
 
-    - hosts: all
-      become: true
-      vars:
-        base_admin_users:
-          - name: admin
-            authorized_keys:
-              - "ssh-ed25519 AAAA... admin@workstation"
-        base_timezone: "America/New_York"
-        base_locale: "en_US.UTF-8"
-      roles:
-        - scbitworx.base
+```yaml
+- hosts: all
+  become: true
+  vars:
+    base_admin_users:
+      - name: admin
+        authorized_keys:
+          - "ssh-ed25519 AAAA... admin@workstation"
+    base_timezone: "America/New_York"
+    base_locale: "en_US.UTF-8"
+  roles:
+    - scbitworx.base
+```
 
 ## License
 
