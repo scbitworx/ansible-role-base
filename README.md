@@ -173,6 +173,17 @@ molecule verify
 molecule destroy
 ```
 
+### Molecule — Docker (alternate scenario)
+
+Runs Arch Linux only with non-default variable values to verify that
+overrides work correctly (editor, histsize, timezone, locale, sshd
+AllowGroups/Banner, extra packages, timer interval).
+
+```bash
+source ~/.virtualenvs/molecule/bin/activate
+molecule test -s alternate
+```
+
 ### Molecule — Vagrant (integration scenario)
 
 Runs a full VM via Vagrant + libvirt for tests that require a real kernel

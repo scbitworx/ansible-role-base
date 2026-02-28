@@ -40,6 +40,20 @@ def test_altuser1_authorized_keys(host):
     assert f.contains("alt-key-1")
 
 
+def test_sshd_max_auth_tries_override(host):
+    """sshd_config must reflect overridden MaxAuthTries."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert f.contains("MaxAuthTries 5")
+    assert not f.contains("MaxAuthTries 3")
+
+
+def test_sshd_max_sessions_override(host):
+    """sshd_config must reflect overridden MaxSessions."""
+    f = host.file("/etc/ssh/sshd_config")
+    assert f.contains("MaxSessions 5")
+    assert not f.contains("MaxSessions 3")
+
+
 def test_sshd_allow_groups(host):
     """sshd_config must contain AllowGroups directive when set."""
     f = host.file("/etc/ssh/sshd_config")

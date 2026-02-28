@@ -11,6 +11,8 @@
     base_locale: "C.UTF-8"
     base_extra_packages:
       - tree
+    base_sshd_max_auth_tries: 5
+    base_sshd_max_sessions: 5
     base_sshd_allow_groups:
       - wheel
     base_sshd_banner: "/etc/issue"
